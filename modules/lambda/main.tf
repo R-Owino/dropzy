@@ -80,7 +80,7 @@ resource "aws_iam_role_policy" "lambda_dynamodb" {
   role = aws_iam_role.lambda_role.name
 
   policy = templatefile("${path.module}/lambda-dynamodb-policy.json", {
-    dynamodb_userdata_table_arn = var.dynamodb_userdata_table_arn,
+    dynamodb_userdata_table_arn           = var.dynamodb_userdata_table_arn,
     dynamodb_documents_metadata_table_arn = var.dynamodb_documents_metadata_table_arn
   })
 }
@@ -99,5 +99,5 @@ resource "aws_iam_role_policy" "lambda_logs" {
   role = aws_iam_role.lambda_role.name
 
   policy = file("${path.module}/lambda-logs-policy.json")
-  
+
 }

@@ -3,16 +3,16 @@
 resource "aws_s3_bucket" "documents" {
   bucket = "${var.project_name}-documents"
 
-    tags = {
-      Name       = "${var.project_name}-documents",
-        Environment = var.environment
-    }
+  tags = {
+    Name        = "${var.project_name}-documents",
+    Environment = var.environment
+  }
 }
 
 resource "aws_s3_bucket_acl" "documents" {
   bucket = aws_s3_bucket.documents.id
   acl    = "private"
-  
+
 }
 
 resource "aws_s3_bucket_versioning" "documents-versioning" {

@@ -2,9 +2,9 @@
 
 # userdata table
 resource "aws_dynamodb_table" "userdata" {
-  name = var.userdata_table_name
+  name         = var.userdata_table_name
   billing_mode = "PAY_PER_REQUEST"
-  hash_key = "UserId"
+  hash_key     = "UserId"
 
   attribute {
     name = "UserId"
@@ -22,10 +22,10 @@ resource "aws_dynamodb_table" "userdata" {
 
 # documents metadata table
 resource "aws_dynamodb_table" "documents_metadata" {
-  name = var.documents_metadata_table_name
+  name         = var.documents_metadata_table_name
   billing_mode = "PAY_PER_REQUEST"
-  hash_key = "UserId"
-  range_key = "DocumentId"
+  hash_key     = "UserId"
+  range_key    = "DocumentId"
 
   attribute {
     name = "UserId"
@@ -44,5 +44,5 @@ resource "aws_dynamodb_table" "documents_metadata" {
   tags = {
     Name = "documents-metadata"
   }
-  
+
 }
