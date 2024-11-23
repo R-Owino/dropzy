@@ -8,12 +8,12 @@ output "table_arn" {
   value       = aws_dynamodb_table.userdata.arn
 }
 
-output "doc_table_name" {
+output "documents_metadata_table_name" {
   description = "Name of the DynamoDB table"
   value       = aws_dynamodb_table.documents_metadata.name
 }
 
-output "doc_table_arn" {
+output "documents_metadata_table_arn" {
   description = "ARN of the DynamoDB table"
   value       = aws_dynamodb_table.documents_metadata.arn
 }
