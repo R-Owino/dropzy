@@ -24,8 +24,7 @@ resource "aws_dynamodb_table" "userdata" {
 resource "aws_dynamodb_table" "documents_metadata" {
   name         = var.documents_metadata_table_name
   billing_mode = "PAY_PER_REQUEST"
-  hash_key     = "UserId"
-  range_key    = "DocumentId"
+  hash_key     = "DocumentId"
 
   attribute {
     name = "UserId"
