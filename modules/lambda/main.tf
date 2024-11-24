@@ -23,7 +23,7 @@ resource "aws_lambda_function" "userdata" {
   function_name = "${var.project_name}-userdata-${var.environment}"
   role          = aws_iam_role.lambda_role.arn
   handler       = "userdata_lambda.handler"
-  runtime       = "python3.9"
+  runtime       = "python3.12"
   timeout       = 30
 
   environment {
@@ -38,7 +38,7 @@ resource "aws_lambda_function" "upload" {
   function_name = "${var.project_name}-upload-${var.environment}"
   role          = aws_iam_role.lambda_role.arn
   handler       = "upload_lambda.handler"
-  runtime       = "python3.9"
+  runtime       = "python3.12"
   timeout       = 30
 
   environment {
@@ -54,7 +54,7 @@ resource "aws_lambda_function" "download" {
   function_name = "${var.project_name}-download-${var.environment}"
   role          = aws_iam_role.lambda_role.arn
   handler       = "download_lambda.handler"
-  runtime       = "python3.9"
+  runtime       = "python3.12"
   timeout       = 30
 
   environment {
