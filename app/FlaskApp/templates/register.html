@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up - Files on Cloud</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #212750;
+            color: #f8f8f2;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .signup-container {
+            background-color: #1a1a3d;
+            border-radius: 10px;
+            padding: 40px;
+            width: 100%;
+            max-width: 400px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .signup-header {
+            text-align: center;
+            color: #5681d0;
+            margin-bottom: 30px;
+        }
+        .input-group {
+            margin-bottom: 20px;
+        }
+        .input-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #f8f8f2;
+        }
+        .input-group input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #5681d0;
+            background-color: #212750;
+            color: #f8f8f2;
+            border-radius: 5px;
+            box-sizing: border-box;
+        }
+        .signup-button {
+            width: 100%;
+            padding: 12px;
+            background-color: #5681d0;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        .signup-button:hover {
+            background-color: #4070c0;
+        }
+        .login-section {
+            text-align: center;
+            margin-top: 20px;
+        }
+        .login-link {
+            color: #5681d0;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+        .login-link:hover {
+            color: #4070c0;
+        }
+    </style>
+</head>
+<body>
+    <div class="signup-container">
+        <h1 class="signup-header">Create Your Account</h1>
+        
+        <form action="{{ url_for('confirmation') }}" method="post">
+            <div class="input-group">
+                <label for="email">Email</label>
+                <input type="email" id="email" name="email" required>
+            </div>
+
+            <div class="input-group">
+                <label for="username">Username</label>
+                <input type="text" id="username" name="username" required>
+            </div>
+            
+            <div class="input-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" required>
+            </div>
+            
+            <button type="submit" class="signup-button">Sign Up</button>
+        </form>
+        
+        <div class="login-section">
+            Already have an account? <a href="{{ url_for('login') }}" class="login-link">Log In</a>
+        </div>
+    </div>
+</body>
+</html>
