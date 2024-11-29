@@ -3,150 +3,95 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Verify Your Account - Files on Cloud</title>
+    <title>Home</title>
+    <script src="https://unpkg.com/@dotlottie/player-component@2.7.12/dist/dotlottie-player.mjs" type="module"></script>
     <style>
         body {
             font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
             background-color: #212750;
             color: #f8f8f2;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
         }
-        .verification-container {
+        .header {
+            text-align: center;
+        }
+        .divider {
+            border-top: 2px solid #5681d0;
+            margin: 20px 0;
+        }
+        .two-column {
+            display: flex;
+            gap: 40px;
+        }
+        .column {
+            flex: 1;
+            padding: 20px;
             background-color: #1a1a3d;
             border-radius: 10px;
-            padding: 40px;
-            width: 100%;
-            max-width: 400px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            text-align: center;
         }
-        .verification-header {
-            color: #5681d0;
-            margin-bottom: 20px;
-        }
-        .verification-message {
-            color: #f8f8f2;
-            margin-bottom: 30px;
-            line-height: 1.6;
-        }
-        .input-group {
-            margin-bottom: 20px;
-        }
-        .input-group input {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #5681d0;
-            background-color: #212750;
-            color: #f8f8f2;
-            border-radius: 5px;
-            box-sizing: border-box;
-            text-align: center;
-            letter-spacing: 10px;
-            font-size: 24px;
-        }
-        .button-group {
+        .centered-button {
             display: flex;
-            justify-content: space-between;
-            gap: 20px;
+            justify-content: center;
+            margin-top: 20px;
         }
-        .confirm-button, .resend-button {
-            flex: 1;
-            padding: 12px;
-            border-radius: 5px;
+        .get-started {
+            background-color: #5681d0;
+            color: white;
             border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            text-decoration: none;
             cursor: pointer;
             transition: background-color 0.3s ease;
         }
-        .confirm-button {
-            background-color: #5681d0;
-            color: white;
-        }
-        .confirm-button:hover {
+        .get-started:hover {
             background-color: #4070c0;
         }
-        .resend-button {
-            background-color: transparent;
-            border: 2px solid #5681d0;
+        .lottie-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100%;
+        }
+        h1, h2 {
             color: #5681d0;
         }
-        .resend-button:hover {
-            background-color: #5681d0;
-            color: white;
+        p {
+            line-height: 1.6;
         }
     </style>
 </head>
 <body>
-    <div class="verification-container">
-        <h1 class="verification-header">Verify Your Account</h1>
-        
-        <p class="verification-message">
-            We've sent a 6-digit verification code to your email address. 
-            Please enter the code below to confirm your account.
-        </p>
-        
-        <form id="verification-form" action="{{ url_for('verify') }}" method="post">
-            <div class="input-group">
-                <input 
-                    type="text" 
-                    id="verification-code" 
-                    name="verification-code" 
-                    maxlength="6" 
-                    placeholder="_ _ _ _ _ _" 
-                    required
-                >
-            </div>
-            
-            <div class="button-group">
-                <button type="submit" class="confirm-button">Confirm</button>
-                <button type="button" class="resend-button" onclick="resendCode()">Resend</button>
-            </div>
-        </form>
+    <div class="header">
+        <h1>Files on Cloud</h1>
+        <p>Securely share and access documents</p>
     </div>
-
-    <script>
-        document.getElementById('verification-form').addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            // Simulate verification (replace with actual backend verification)
-            fetch("{{ url_for('verify') }}", {
-                method: 'POST',
-                body: new FormData(e.target)
-            })
-            .then(response => {
-                if (response.ok) {
-                    // Redirect to login page on successful verification
-                    window.location.href = "{{ url_for('login') }}";
-                } else {
-                    // Handle verification failure
-                    alert('Verification failed. Please try again.');
-                }
-            })
-            .catch(error => {
-                alert('An error occurred. Please try again.');
-            });
-        });
-
-        function resendCode() {
-            // This would typically call a backend route to resend verification code
-            fetch("{{ url_for('resend_verification') }}", {
-                method: 'POST'
-            })
-            .then(response => {
-                alert('A new verification code has been sent to your email.');
-            })
-            .catch(error => {
-                alert('Failed to resend verification code. Please try again.');
-            });
-        }
-
-        // Automatically add spaces between characters in verification input
-        document.getElementById('verification-code').addEventListener('input', function(e) {
-            e.target.value = e.target.value.replace(/\s/g, '').replace(/(.{1})/g, "$1 ").trim();
-        });
-    </script>
+    
+    <div class="divider"></div>
+    
+    <div class="two-column">
+        <div class="column">
+            <h2>About the App</h2>
+            <p>Files on Cloud is a secure and user-friendly platform that allows you to store, share, and access your important documents from anywhere in the world. With advanced security features and seamless integration, managing your files has never been easier.</p>
+            <div class="centered-button">
+                <a href="{{ url_for('login.login') }}" class="get-started">Get Started</a>
+            </div>
+        </div>
+        
+        <div class="column">
+            <div class="lottie-container">
+                <dotlottie-player 
+                    src="https://lottie.host/466bad7b-5a7d-4df5-a873-1640da15b399/OYDoHOKAHN.lottie" 
+                    background="transparent" 
+                    speed="1" 
+                    style="width: 300px; height: 300px" 
+                    loop 
+                    autoplay>
+                </dotlottie-player>
+            </div>
+        </div>
+    </div>
 </body>
 </html>

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Verify Your Account - Files on Cloud</title>
+    <title>Verify</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -88,7 +88,7 @@
             Please enter the code below to confirm your account.
         </p>
         
-        <form action="{{ url_for('verify') }}" method="post">
+        <form action="{{ url_for('confirm.confirm') }}" method="post">
             <div class="input-group">
                 <input 
                     type="text" 

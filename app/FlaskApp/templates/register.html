@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sign Up - Files on Cloud</title>
+    <title>Sign Up</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -76,7 +76,7 @@
     <div class="signup-container">
         <h1 class="signup-header">Create Your Account</h1>
         
-        <form action="{{ url_for('confirmation') }}" method="post">
+        <form action="{{ url_for('register.register') }}" method="post">
             <div class="input-group">
                 <label for="email">Email</label>
                 <input type="email" id="email" name="email" required>
@@ -96,7 +96,7 @@
         </form>
         
         <div class="login-section">
-            Already have an account? <a href="{{ url_for('login') }}" class="login-link">Log In</a>
+            Already have an account? <a href="{{ url_for('login.login') }}" class="login-link">Log In</a>
         </div>
     </div>
 </body>
