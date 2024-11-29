@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>404</title>
+    <script src="https://unpkg.com/@dotlottie/player-component@2.7.12/dist/dotlottie-player.mjs" type="module"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #212750;
+            color: #f8f8f2;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            text-align: center;
+        }
+        .error-container {
+            background-color: #1a1a3d;
+            border-radius: 10px;
+            padding: 40px;
+            width: 100%;
+            max-width: 500px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .error-message {
+            margin-top: 20px;
+            color: #f8f8f2;
+            line-height: 1.6;
+        }
+        .home-link {
+            background-color: #5681d0;
+            color: white;
+            text-decoration: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            margin-top: 20px;
+            transition: background-color 0.3s ease;
+        }
+        .home-link:hover {
+            background-color: #4070c0;
+        }
+    </style>
+</head>
+<body>
+    <div class="error-container">
+        <dotlottie-player 
+            src="https://lottie.host/b7b2fe7a-e684-45b6-bfe1-082f9e162b1f/F7PBlh3QZk.lottie" 
+            background="transparent" 
+            speed="1" 
+            style="width: 300px; height: 300px" 
+            loop 
+            autoplay>
+        </dotlottie-player>
+        
+        <h1 style="color: #5681d0;">Oops! Page Not Found</h1>
+        
+        <p class="error-message">
+            The page you are looking for might have been removed, had its name changed, 
+            or is temporarily unavailable. Don't worry, you can always return to our 
+            home page and continue exploring.
+        </p>
+        
+        <a href="{{ url_for('landing.landing') }}" class="home-link">Return to Home</a>
+    </div>
+</body>
+</html>
