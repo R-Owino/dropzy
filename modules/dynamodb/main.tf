@@ -27,11 +27,6 @@ resource "aws_dynamodb_table" "documents_metadata" {
   hash_key     = "DocumentId"
 
   attribute {
-    name = "UserId"
-    type = "S"
-  }
-
-  attribute {
     name = "DocumentId"
     type = "S"
   }
