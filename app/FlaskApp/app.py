@@ -5,6 +5,7 @@ from routes.login import login_bp
 from routes.register import register_bp
 from routes.confirm import confirm_bp
 from routes.main import main_bp
+from routes.upload import upload_bp
 from routes.logout import logout_bp
 
 app = Flask(__name__)
@@ -15,6 +16,7 @@ app.register_blueprint(login_bp)
 app.register_blueprint(register_bp)
 app.register_blueprint(confirm_bp)
 app.register_blueprint(main_bp)
+app.register_blueprint(upload_bp)
 app.register_blueprint(logout_bp)
 
 # Error handler
