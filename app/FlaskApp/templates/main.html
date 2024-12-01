@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+    <script src="https://unpkg.com/lucide-icons"></script>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #212750;
+            color: #f8f8f2;
+            display: flex;
+            height: 100vh;
+        }
+        .dashboard-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            flex-grow: 1;
+            padding: 20px;
+            overflow-y: auto;
+        }
+        .header {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+        .welcome-message {
+            color: #5681d0;
+            font-size: 24px;
+            text-align: center;
+        }
+        .header-divider {
+            width: 100%;
+            height: 1px;
+            background-color: #5681d0;
+            margin-top: 15px;
+            opacity: 0.5;
+        }
+        .sidebar {
+            width: 60px;
+            background-color: #1a1a3d;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            transition: width 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        .sidebar.expanded {
+            width: 250px;
+        }
+        .sidebar-toggle {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            padding: 15px 0;
+            cursor: pointer;
+            position: absolute;
+            top: 0;
+            z-index: 10;
+        }
+        .sidebar-toggle i {
+            transition: transform 0.3s ease;
+        }
+        .sidebar.expanded .sidebar-toggle i {
+            transform: rotate(180deg);
+        }
+        .sidebar-content {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding-top: 60px;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        .sidebar.expanded .sidebar-content {
+            opacity: 1;
+        }
+        .user-profile-details {
+            width: 100%;
+            padding: 15px;
+            text-align: center;
+        }
+        .user-email {
+            color: #888;
+            margin-bottom: 10px;
+        }
+        .logout-btn {
+            background-color: #5681d0;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        .logout-btn:hover {
+            background-color: #4070c0;
+        }
+        .upload-section {
+            background-color: #1a1a3d;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+        .upload-helper-text {
+            color: #888;
+            margin-bottom: 15px;
+            max-width: 500px;
+        }
+        .upload-input {
+            display: none;
+        }
+        .upload-label {
+            background-color: #5681d0;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: background-color 0.3s ease;
+        }
+        .upload-label:hover {
+            background-color: #4070c0;
+        }
+        .recent-files {
+            background-color: #1a1a3d;
+            padding: 20px;
+            border-radius: 10px;
+        }
+        .recent-files-title {
+            color: #5681d0;
+            margin-bottom: 20px;
+            font-size: 20px;
+        }
+        .files-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+        }
+        .files-column {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        .file-item {
+            background-color: #212750;
+            padding: 15px;
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: background-color 0.3s ease;
+        }
+        .file-item:hover {
+            background-color: #2a3060;
+        }
+        .file-icon {
+            color: #5681d0;
+        }
+        .file-details {
+            flex-grow: 1;
+        }
+        .file-name {
+            font-weight: bold;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 200px;
+        }
+        .file-size {
+            color: #888;
+            font-size: 0.8em;
+        }
+        .file-actions {
+            display: flex;
+            gap: 10px;
+        }
+        .action-icon {
+            color: #5681d0;
+            cursor: pointer;
+            transition: color 0.3s ease;
+        }
+        .action-icon:hover {
+            color: #4070c0;
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <div class="sidebar-toggle">
+            <i data-lucide="chevron-right" stroke="#5681d0"></i>
+        </div>
+        <div class="sidebar-content">
+            <div class="user-profile-details">
+                <h3 id="username">{{ username }}</h3>
+                <div class="user-email">{{ email }}</div>
+                <form action="{{ url_for('logout.logout') }} method="post">
+                    <button type="submit" class="logout-btn">Logout</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="dashboard-container">
+        <div class="header">
+            <h1 class="welcome-message">Files on Cloud</h1>
+            <div class="header-divider"></div>
+        </div>
+
+        <div class="upload-section">
+            <div class="upload-helper-text">
+                Upload files to the shared cloud storage. Supported file types include documents, 
+                images, spreadsheets, and more. Maximum file size is 2.5GB.
+            </div>
+            <input type="file" id="file-upload" class="upload-input" multiple>
+            <label for="file-upload" class="upload-label">
+                <i data-lucide="upload" stroke="#ffffff"></i>
+                Upload Files
+            </label>
+        </div>
+
+        <div class="recent-files">
+            <h2 class="recent-files-title">Recent Files</h2>
+            <div class="files-grid" id="files-container">
+                <!-- Files will be dynamically populated here -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Initialize Lucide Icons
+        lucide.createIcons();
+
+        // Sidebar toggle functionality
+        const sidebar = document.querySelector('.sidebar');
+        const sidebarToggle = document.querySelector('.sidebar-toggle');
+
+        sidebarToggle.addEventListener('click', () => {
+            sidebar.classList.toggle('expanded');
+        });
+
+        // File upload handler
+        document.getElementById('file-upload').addEventListener('change', function(event) {
+            const files = event.target.files;
+            // TODO: Implement file upload logic 
+            // This would typically involve:
+            // 1. Validating file types and sizes
+            // 2. Using FormData to send files to backend
+            // 3. Handling upload progress and response
+            console.log(`${files.length} file(s) selected`);
+        });
+
+        // Function to fetch and display recent files
+        async function fetchRecentFiles() {
+            try {
+                // TODO: Replace with actual backend API call
+                const response = await fetch('/api/recent-files');
+                const files = await response.json();
+                
+                const filesContainer = document.getElementById('files-container');
+                filesContainer.innerHTML = ''; // Clear existing files
+
+                // Dynamic column generation
+                const columns = [
+                    document.createElement('div'),
+                    document.createElement('div'),
+                    document.createElement('div')
+                ];
+                columns.forEach(col => {
+                    col.className = 'files-column';
+                    filesContainer.appendChild(col);
+                });
+
+                // Limit to 15 files (5 per column)
+                files.slice(0, 15).forEach((file, index) => {
+                    const columnIndex = Math.floor(index / 5);
+                    const fileItem = createFileElement(file);
+                    columns[columnIndex].appendChild(fileItem);
+                });
+            } catch (error) {
+                console.error('Error fetching files:', error);
+            }
+        }
+
+        // Create file element with download and delete options
+        function createFileElement(file) {
+            const fileItem = document.createElement('div');
+            fileItem.className = 'file-item';
+            
+            // Determine icon based on file type
+            const iconMap = {
+                'pdf': 'file-text',
+                'doc': 'file-text',
+                'docx': 'file-text',
+                'jpg': 'image',
+                'png': 'image',
+                'xlsx': 'file-spreadsheet',
+                'csv': 'file-spreadsheet',
+                'mp4': 'file-video',
+                'mp3': 'file-audio'
+            };
+
+            const fileExt = file.name.split('.').pop().toLowerCase();
+            const icon = iconMap[fileExt] || 'file';
+
+            fileItem.innerHTML = `
+                <i class="file-icon" data-lucide="${icon}"></i>
+                <div class="file-details">
+                    <div class="file-name">${file.name}</div>
+                    <div class="file-size">${(file.size / 1024 / 1024).toFixed(1)} MB</div>
+                </div>
+                <div class="file-actions">
+                    <i class="action-icon download-file" data-file-id="${file.id}" data-lucide="download"></i>
+                    <i class="action-icon delete-file" data-file-id="${file.id}" data-lucide="trash-2"></i>
+                </div>
+            `;
+
+            // Add event listeners for download and delete
+            const downloadIcon = fileItem.querySelector('.download-file');
+            const deleteIcon = fileItem.querySelector('.delete-file');
+
+            downloadIcon.addEventListener('click', () => {
+                // TODO: Implement download logic via backend API
+                console.log(`Downloading file: ${file.name}`);
+            });
+
+            deleteIcon.addEventListener('click', () => {
+                // TODO: Implement delete logic via backend API
+                console.log(`Deleting file: ${file.name}`);
+            });
+
+            // Re-initialize Lucide icons
+            lucide.createIcons();
+
+            return fileItem;
+        }
+
+        // Initial file fetch
+        fetchRecentFiles();
+    </script>
+</body>
+</html>
