@@ -255,14 +255,47 @@
         });
 
         // File upload handler
-        document.getElementById('file-upload').addEventListener('change', function(event) {
+        document.getElementById('file-upload').addEventListener('change', async (event) => {
             const files = event.target.files;
-            // TODO: Implement file upload logic 
-            // This would typically involve:
-            // 1. Validating file types and sizes
-            // 2. Using FormData to send files to backend
-            // 3. Handling upload progress and response
-            console.log(`${files.length} file(s) selected`);
+            
+            // validate that files have been selected
+            if (files.length === 0) {
+                alert("Select at least one file to upload");
+                return;
+            }
+
+            const MAX_FILE_SIZE = 2.5 * 1024 * 1024 * 1024;
+
+            for (let file of files) {
+                // validate file size
+                if (file.size > MAX_FILE_SIZE) {
+                    alert(`File "${file.name}" exceeds the max size.`);
+                    continue;
+                }
+
+                // prepare formData to send file to flask
+                const formData = new FormData();
+                formData.append("file", file);
+
+                try {
+                    // send file to flask
+                    const response = await fetch("/upload", {
+                        method: "POST",
+                        body: formData,
+                    });
+
+                    const result = await response.json();
+
+                    if (response.ok) {
+                        alert(`File "${file.name}" uploaded successfully.`);
+                    } else {
+                        alert(`Error uploading file "${file.name}": ${result.error}`);
+                    }
+                } catch (error) {
+                    console.error("Error during uplaod:", error);
+                    alert(`An error occured while uploading "${file.name}"`)
+                }
+            }
         });
 
         // Function to fetch and display recent files
