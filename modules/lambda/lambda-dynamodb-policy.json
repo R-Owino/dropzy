@@ -6,7 +6,8 @@
             "Action": [
                 "dynamodb:PutItem",
                 "dynamodb:GetItem",
-                "dynamodb:Query"
+                "dynamodb:Query",
+                "dynamodb:Scan"
             ],
             "Resource": [
                 "${dynamodb_userdata_table_arn}",
