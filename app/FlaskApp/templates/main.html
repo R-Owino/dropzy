@@ -137,6 +137,20 @@
         .upload-label:hover {
             background-color: #4070c0;
         }
+        .progress-container {
+            width: 100%;
+            background-color: #212750;
+            margin-top: 15px;
+            border-radius: 5px;
+            display: none; /* Initially hidden */
+        }
+        .progress-bar {
+            width: 0%;
+            height: 10px;
+            background-color: #5681d0;
+            border-radius: 5px;
+            transition: width 0.5s ease;
+        }
         .recent-files {
             background-color: #1a1a3d;
             padding: 20px;
@@ -232,6 +246,9 @@
                 <i data-lucide="upload" stroke="#ffffff"></i>
                 Upload Files
             </label>
+            <div class="progress-container">
+                <div class="progress-bar" id="upload-progress"></div>
+            </div>
         </div>
 
         <div class="recent-files">
@@ -249,14 +266,21 @@
         // Sidebar toggle functionality
         const sidebar = document.querySelector('.sidebar');
         const sidebarToggle = document.querySelector('.sidebar-toggle');
+        const sidebarIcon = document.getElementById('sidebar-icon');
 
         sidebarToggle.addEventListener('click', () => {
             sidebar.classList.toggle('expanded');
+            sidebarIcon.setAttribute('name', sidebar.classList.contains('expanded') 
+                ? 'chevron-left' 
+                : 'chevron-right'
+            );
         });
 
         // File upload handler
         document.getElementById('file-upload').addEventListener('change', async (event) => {
             const files = event.target.files;
+            const progressContainer = document.querySelector('.progress-container');
+            const progressBar = document.getElementById('upload-progress');
             
             // validate that files have been selected
             if (files.length === 0) {
@@ -265,6 +289,10 @@
             }
 
             const MAX_FILE_SIZE = 2.5 * 1024 * 1024 * 1024;
+
+            // show progress container
+            progressContainer.style.display = 'block';
+            progressBar.style.width = '0%';
 
             for (let file of files) {
                 // validate file size
@@ -284,6 +312,8 @@
                         body: formData,
                     });
 
+                    progressBar.style.width = '100%';
+
                     const result = await response.json();
 
                     if (response.ok) {
@@ -295,15 +325,23 @@
                     console.error("Error during uplaod:", error);
                     alert(`An error occured while uploading "${file.name}"`)
                 }
+
+                setTimeout(() => {
+                    progressContainer.style.display = 'none';
+                    progressBar.style.width = '0%';
+                }, 1000);
             }
         });
 
         // Function to fetch and display recent files
         async function fetchRecentFiles() {
             try {
-                // TODO: Replace with actual backend API call
-                const response = await fetch('/api/recent-files');
-                const files = await response.json();
+                const response = await fetch('/file-metadata');
+                if (!response.ok) {
+                    throw new Error('Failed to fetch files');
+                }
+                const data = await response.json()
+                const files = data.files;
                 
                 const filesContainer = document.getElementById('files-container');
                 filesContainer.innerHTML = ''; // Clear existing files
@@ -348,18 +386,18 @@
                 'mp3': 'file-audio'
             };
 
-            const fileExt = file.name.split('.').pop().toLowerCase();
+            const fileExt = file.file_name.split('.').pop().toLowerCase();
             const icon = iconMap[fileExt] || 'file';
 
             fileItem.innerHTML = `
                 <i class="file-icon" data-lucide="${icon}"></i>
                 <div class="file-details">
-                    <div class="file-name">${file.name}</div>
-                    <div class="file-size">${(file.size / 1024 / 1024).toFixed(1)} MB</div>
+                    <div class="file-name">${file.file_name}</div>
+                    <div class="file-size">${(file.size_bytes / 1024 / 1024).toFixed(1)} MB</div>
                 </div>
                 <div class="file-actions">
-                    <i class="action-icon download-file" data-file-id="${file.id}" data-lucide="download"></i>
-                    <i class="action-icon delete-file" data-file-id="${file.id}" data-lucide="trash-2"></i>
+                    <i class="action-icon download-file" data-file-key="${file.file_key}" data-lucide="download"></i>
+                    <i class="action-icon delete-file" data-file-id="${file.file_id}" data-lucide="trash-2"></i>
                 </div>
             `;
 
@@ -367,8 +405,13 @@
             const downloadIcon = fileItem.querySelector('.download-file');
             const deleteIcon = fileItem.querySelector('.delete-file');
 
-            downloadIcon.addEventListener('click', () => {
-                // TODO: Implement download logic via backend API
+            downloadIcon.addEventListener('click', async () => {
+                try {
+                    const fileKey = downloadIcon.dataset.file_key
+                    window.location.href = `/download?file_key=${encodeURIComponent(fileKey)}`;
+                } catch (error) {
+                    console.error('Download failed:', error);
+                }
                 console.log(`Downloading file: ${file.name}`);
             });
 
