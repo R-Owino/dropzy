@@ -20,7 +20,7 @@ resource "aws_api_gateway_authorizer" "cognito" {
 resource "aws_api_gateway_resource" "file-share" {
   rest_api_id = aws_api_gateway_rest_api.docs.id
   parent_id   = aws_api_gateway_rest_api.docs.root_resource_id
-  path_part   = "docs"
+  path_part   = "files"
 }
 
 resource "aws_api_gateway_method" "upload" {
@@ -39,6 +39,14 @@ resource "aws_api_gateway_method" "download" {
   authorizer_id = aws_api_gateway_authorizer.cognito.id
 }
 
+resource "aws_api_gateway_method" "get_file_metadata" {
+  rest_api_id = aws_api_gateway_rest_api.docs.id
+  resource_id = aws_api_gateway_resource.file-share.id
+  http_method = "GET"
+  authorization = "COGNITO_USER_POOLS"
+  authorizer_id = aws_api_gateway_authorizer.cognito
+}
+
 resource "aws_api_gateway_integration" "upload_lambda" {
   rest_api_id = aws_api_gateway_rest_api.docs.id
   resource_id = aws_api_gateway_resource.file-share.id
@@ -54,6 +62,14 @@ resource "aws_api_gateway_integration" "download_lambda" {
   http_method = aws_api_gateway_method.download.http_method
   type        = "AWS_PROXY"
   uri         = var.download_lambda_invoke_arn
+}
+
+resource "aws_api_gateway_integration" "fetch_file_metadata" {
+  rest_api_id = aws_api_gateway_rest_api.docs.id
+  resource_id = aws_api_gateway_resource.file-share.id
+  http_method = aws_api_gateway_method.get_file_metadata.http_method
+  type = "AWS_PROXY"
+  uri = var.file_metadata_invoke_arn
 }
 
 resource "aws_api_gateway_method" "cors_options" {
@@ -129,4 +145,12 @@ resource "aws_lambda_permission" "download_lambda" {
   function_name = var.download_lambda_function_name
   principal     = "apigateway.amazonaws.com"
   source_arn    = "${aws_api_gateway_rest_api.docs.execution_arn}/*/*/*"
+}
+
+resource "aws_lambda_permission" "file_metadata" {
+  statement_id = "AllowExecutionFromAPIGateway"
+  action = "lambda:InvokeFunction"
+  function_name = var.file_metadata_lambda_function_name
+  principal = "apigateway.amazonaws.com"
+  source_arn = "${aws_api_gateway_rest_api.docs.execution_arn}/*/*/*"
 }
