@@ -45,7 +45,6 @@ def lambda_handler(event, context):
             'file_name': file_name,
             'file_key': file_key,
             'content_type': content_type,
-            'bucket_name': BUCKET_NAME,
             'object_url': object_url,
             'upload_timestamp': timestamp,
             'size_bytes': len(file_content)
@@ -58,7 +57,9 @@ def lambda_handler(event, context):
             'StatusCode': 200,
             'headers': {
                 'Contet-Type': 'Application/json',
-                'Allow-Access-Control-Origin': '*'
+                'Allow-Access-Control-Origin': '*',
+                'Access-Control-Allow-Methods': 'POST, OPTIONS',
+                'Access-Control-Allow-Headers': 'Content-Type, Authorization'
             },
             'body': json.dumps({
                 'message': 'File uploaded successfully',
