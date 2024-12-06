@@ -86,6 +86,22 @@ resource "aws_lambda_function" "download" {
   }
 }
 
+resource "aws_lambda_function" "delete_file" {
+  filename = "${path.module}/delete_file_lambda.zip"
+  function_name = "${var.project_name}-delete-${var.environment}"
+  role = aws_iam_role.lambda_role.arn
+  handler = "delete_file_lambda.handler"
+  runtime = "python3.12"
+  timeout = 30
+
+  environment {
+    variables = {
+      S3_BUCKET_NAME      = var.s3_bucket_name
+      DYNAMODB_TABLE_NAME = var.dynamodb_documents_metadata_table_name
+    }
+  }
+}
+
 resource "aws_iam_role" "lambda_role" {
   name               = "${var.project_name}-lambda-role"
   assume_role_policy = file("${path.module}/lambda-policy.json")
@@ -106,7 +122,7 @@ resource "aws_iam_role_policy" "lambda_dynamodb" {
   })
 }
 
-resource "aws_iam_role_policy" "lambda_dynamo_metadata" {
+resource "aws_iam_role_policy" "lambda_dynamodb_metadata" {
   name = "${var.project_name}-lambda-dynamodb-metadata-policy-${var.environment}"
   role = aws_iam_role.lambda_role
 
@@ -121,6 +137,16 @@ resource "aws_iam_role_policy" "lambda_s3_policy" {
 
   policy = templatefile("${path.module}/lambda-s3-policy.json", {
     s3_bucket_arn = var.s3_bucket_arn
+  })
+}
+
+resource "aws_iam_role_policy" "delete_file_policy" {
+  name = "${var.project_name}-s3-dynamodb-delete-policy-${var.environment}"
+  role = aws_iam_role.lambda_role.name
+
+  policy = templatefile("${path.module}/lambda-delete-file-policy.json", {
+    s3_bucket_arn = var.s3_bucket_arn,
+    dynamodb_documents_metadata_table_arn = var.dynamodb_documents_metadata_table_arn
   })
 }
 
