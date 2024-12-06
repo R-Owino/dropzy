@@ -41,6 +41,10 @@ module "api_gateway" {
   download_lambda_invoke_arn    = module.lambda.download_function_arn
   upload_lambda_function_name   = module.lambda.upload_function_name
   download_lambda_function_name = module.lambda.download_function_name
+  file_metadata_lambda_function_name = module.lambda.file_metadata_function_name
+  file_metadata_invoke_arn = module.lambda.file_metadata_arn
+  delete_lambda_function_name = module.lambda.delete_lambda_function_name
+  delete_lambda_invoke_arn = module.lambda.delete_function_arn
 }
 
 module "s3" {
