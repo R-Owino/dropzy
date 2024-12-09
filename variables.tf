@@ -15,5 +15,5 @@ variable "environment" {
 variable "project_name" {
   description = "The project name, which will be used as a prefix for all resources."
   type        = string
-  default     = "paper_trail"
+  default     = "fileshare"
 }
