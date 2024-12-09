@@ -412,12 +412,28 @@
                 } catch (error) {
                     console.error('Download failed:', error);
                 }
-                console.log(`Downloading file: ${file.name}`);
+                console.log(`Downloading file: ${file.file_name}`);
             });
 
-            deleteIcon.addEventListener('click', () => {
-                // TODO: Implement delete logic via backend API
-                console.log(`Deleting file: ${file.name}`);
+            deleteIcon.addEventListener('click', async () => {
+                try {
+                    const fileKey = deleteIcon.dataset.fileKey;
+                    const fileId = deleteIcon.dataset.fileId;
+
+                    const response = await fetch(`/delete?file_key=${encodeURIComponent(fileKey)}`, {
+                        method: 'DELETE'
+                    });
+
+                    if (response.ok) {
+                        fileItem.remove();
+                    } else {
+                        const errorData = await response.json();
+                        console.error('Delete error:', errorData.error);
+                    }
+                } catch (error) {
+                    console.error('Delete request error:', error);
+                }
+                console.log(`Deleting file: ${file.file_name}`);
             });
 
             // Re-initialize Lucide icons
