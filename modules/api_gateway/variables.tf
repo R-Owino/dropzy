@@ -16,31 +16,41 @@ variable "userpool_arn" {
 }
 
 variable "upload_lambda_invoke_arn" {
-  description = "Invoke ARN of the upload Lambda function"
+  description = "Invoke ARN of the upload lambda function"
   type        = string
 }
 
 variable "download_lambda_invoke_arn" {
-  description = "Invoke ARN of the download Lambda function"
+  description = "Invoke ARN of the download lambda function"
   type        = string
 }
 
 variable "file_metadata_invoke_arn" {
   description = "Invoke ARN of the fetch file metadata lambda function"
-  type = string
+  type        = string
+}
+
+variable "delete_lambda_invoke_arn" {
+  description = "Invoke ARN of the delete lambda function"
+  type        = string
 }
 
 variable "upload_lambda_function_name" {
-  description = "Name of the upload Lambda function"
+  description = "Name of the upload lambda function"
   type        = string
 }
 
 variable "download_lambda_function_name" {
-  description = "Name of the download Lambda function"
+  description = "Name of the download lambda function"
   type        = string
 }
 
 variable "file_metadata_lambda_function_name" {
   description = "Name of the fetch file metadata lambda function"
-  type = string
+  type        = string
+}
+
+variable "delete_lambda_function_name" {
+  description = "Name of the delete lambda function"
+  type        = string
 }
