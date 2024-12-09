@@ -40,11 +40,19 @@ resource "aws_api_gateway_method" "download" {
 }
 
 resource "aws_api_gateway_method" "get_file_metadata" {
-  rest_api_id = aws_api_gateway_rest_api.docs.id
-  resource_id = aws_api_gateway_resource.file-share.id
-  http_method = "GET"
+  rest_api_id   = aws_api_gateway_rest_api.docs.id
+  resource_id   = aws_api_gateway_resource.file-share.id
+  http_method   = "GET"
   authorization = "COGNITO_USER_POOLS"
-  authorizer_id = aws_api_gateway_authorizer.cognito
+  authorizer_id = aws_api_gateway_authorizer.cognito.id
+}
+
+resource "aws_api_gateway_method" "delete_file" {
+  rest_api_id   = aws_api_gateway_rest_api.docs.id
+  resource_id   = aws_api_gateway_resource.file-share.id
+  http_method   = "DELETE"
+  authorization = "COGNITO_USER_POOLS"
+  authorizer_id = aws_api_gateway_authorizer.cognito.id
 }
 
 resource "aws_api_gateway_integration" "upload_lambda" {
@@ -68,8 +76,16 @@ resource "aws_api_gateway_integration" "fetch_file_metadata" {
   rest_api_id = aws_api_gateway_rest_api.docs.id
   resource_id = aws_api_gateway_resource.file-share.id
   http_method = aws_api_gateway_method.get_file_metadata.http_method
-  type = "AWS_PROXY"
-  uri = var.file_metadata_invoke_arn
+  type        = "AWS_PROXY"
+  uri         = var.file_metadata_invoke_arn
+}
+
+resource "aws_api_gateway_integration" "delete_lambda" {
+  rest_api_id = aws_api_gateway_rest_api.docs.id
+  resource_id = aws_api_gateway_resource.file-share.id
+  http_method = aws_api_gateway_method.get_file_metadata.http_method
+  type        = "AWS_PROXY"
+  uri         = var.delete_lambda_invoke_arn
 }
 
 resource "aws_api_gateway_method" "cors_options" {
@@ -148,9 +164,17 @@ resource "aws_lambda_permission" "download_lambda" {
 }
 
 resource "aws_lambda_permission" "file_metadata" {
-  statement_id = "AllowExecutionFromAPIGateway"
-  action = "lambda:InvokeFunction"
+  statement_id  = "AllowExecutionFromAPIGateway"
+  action        = "lambda:InvokeFunction"
   function_name = var.file_metadata_lambda_function_name
-  principal = "apigateway.amazonaws.com"
-  source_arn = "${aws_api_gateway_rest_api.docs.execution_arn}/*/*/*"
+  principal     = "apigateway.amazonaws.com"
+  source_arn    = "${aws_api_gateway_rest_api.docs.execution_arn}/*/*/*"
+}
+
+resource "aws_lambda_permission" "delete_lambda" {
+  statement_id  = "AllowExecutionFromAPIGateway"
+  action        = "lambda:InvokeFunction"
+  function_name = var.delete_lambda_function_name
+  principal     = "apigateway.amazonaws.com"
+  source_arn    = "${aws_api_gateway_rest_api.docs.execution_arn}/*/*/*"
 }
