@@ -7,7 +7,7 @@ upload_bp = Blueprint("upload", __name__)
 
 API_GATEWAY_URL = Config.API_GATEWAY_URL
 
-@upload_bp.route("/upload", method=["POST"])
+@upload_bp.route("/upload", methods=["POST"])
 def upload_file():
     """handles file upload to s3 bucket"""
     if "username" not in session:
