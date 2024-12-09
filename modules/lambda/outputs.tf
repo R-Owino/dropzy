@@ -27,22 +27,22 @@ output "download_function_arn" {
 
 output "file_metadata_function_name" {
   description = "Name of the file metadata fetching function"
-  value = aws_lambda_function.fetch_file_metadata.function_name
+  value       = aws_lambda_function.fetch_file_metadata.function_name
 }
 
 output "file_metadata_arn" {
   description = "ARN of the file metadata lambda function"
-  value = aws_lambda_function.fetch_file_metadata.arn
+  value       = aws_lambda_function.fetch_file_metadata.arn
 }
 
 output "delete_lambda_function_name" {
   description = "Name of the delete lambda function"
-  value = aws_lambda_function.delete_file.function_name
+  value       = aws_lambda_function.delete_file.function_name
 }
 
 output "delete_function_arn" {
   description = "ARN of the delete file lambda function"
-  value = aws_lambda_function.delete_file.arn
+  value       = aws_lambda_function.delete_file.arn
 }
 
 output "lambda_execution_role_arn" {
