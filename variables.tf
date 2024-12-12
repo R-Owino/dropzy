@@ -17,3 +17,15 @@ variable "project_name" {
   type        = string
   default     = "fileshare"
 }
+
+variable "userdata_table_name" {
+  description = "Name of the DynamoDB table holding user information"
+  type        = string
+  default     = "userdata"
+}
+
+variable "documents_metadata_table_name" {
+  description = "Name of the DynamoDB table holding file metadata"
+  type        = string
+  default     = "documents-metadata"
+}
