@@ -20,18 +20,27 @@ output "cognito_userpool_domain" {
   value       = module.cognito.cognito_domain
 }
 
-
-output "dynamodb_userdata_table_name" {
-  description = "Name of the DynamoDB table"
-  value       = module.dynamodb.table_name
+output "api_gateway_invoke_url" {
+  description = "Invoke URL of the API Gateway"
+  value       = module.api_gateway.api_gateway_invoke_url
 }
 
-output "dynamodb_userdata_table_arn" {
-  description = "ARN of the DynamoDB table"
-  value       = module.dynamodb.table_arn
+output "api_gateway_upload_url" {
+  description = "Invoke URL for uploading files"
+  value       = module.api_gateway.upload_url
 }
 
-output "lambda_userdata_arn" {
-  description = "ARN of the user data Lambda function"
-  value       = module.lambda.userdata_function_arn
+output "api_gateway_download_url" {
+  description = "Invoke URL for downloading files"
+  value       = module.api_gateway.download_url
+}
+
+output "api_gateway_fetch_metadata_url" {
+  description = "Invoke URL for fetching file metadata"
+  value       = module.api_gateway.fetch_metadata_url
+}
+
+output "api_gateway_delete_url" {
+  description = "Invoke URL for deleting files"
+  value       = module.api_gateway.delete_url
 }
