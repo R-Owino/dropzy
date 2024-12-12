@@ -6,6 +6,10 @@ import datetime
 from botocore.exceptions import ClientError
 
 def lambda_handler(event, context):
+    """
+    Lambda function to handle post-confirmation user signup
+    Stores user information in DynamoDB
+    """
     # get the user data from the event
     username = event['request']['userAttributes']['username']
     email = event['request']['userAttributes']['email']
@@ -21,7 +25,8 @@ def lambda_handler(event, context):
                 'userId': username,
                 'username': username,
                 'email': email,
-                'createdAt': str(datetime.now())
+                'createdAt': datetime.utcnow().isoformat(),
+                'lastLogin': datetime.utcnow().isoformat()
             },
             ConditionExpression='attribute_not_exists(userId)'
         )
