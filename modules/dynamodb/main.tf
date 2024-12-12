@@ -16,7 +16,7 @@ resource "aws_dynamodb_table" "userdata" {
   }
 
   tags = {
-    Name = "userdata"
+    Name = "${var.project_name}-userdata"
   }
 }
 
@@ -36,7 +36,7 @@ resource "aws_dynamodb_table" "documents_metadata" {
   }
 
   tags = {
-    Name = "documents-metadata"
+    Name = "${var.project_name}-documents-metadata"
   }
 
 }
