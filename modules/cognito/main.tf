@@ -42,11 +42,11 @@ resource "aws_cognito_user_pool" "userpool" {
   }
 
   lambda_config {
-    post_confirmation = var.lambda_function_arn
+    post_confirmation = var.userdata_function_arn
   }
 
   tags = {
-    Name = "paper-trail-user-pool"
+    Name = "${var.project_name}-userpool"
   }
 }
 
@@ -70,6 +70,14 @@ resource "aws_cognito_user_pool_client" "userpool_client" {
 data "aws_region" "current" {}
 
 resource "aws_cognito_user_pool_domain" "cognito_domain" {
-  domain       = var.project_name
+  domain       = "${var.project_name}-${var.environment}"
   user_pool_id = aws_cognito_user_pool.userpool.id
+}
+
+resource "aws_lambda_permission" "allow_cognito" {
+  statement_id  = "AllowCognitoInvoke"
+  action        = "lambda:InvokeFunction"
+  function_name = var.userdata_function_name
+  principal     = "cognito-idp.amazonaws.com"
+  source_arn    = aws_cognito_user_pool.userpool.arn
 }
