@@ -5,6 +5,11 @@ variable "project_name" {
   type        = string
 }
 
+variable "aws_region" {
+  description = "AWS region in which the API will be created"
+  type        = string
+}
+
 variable "environment" {
   description = "Environment (dev/prod)"
   type        = string
@@ -15,22 +20,22 @@ variable "userpool_arn" {
   type        = string
 }
 
-variable "upload_lambda_invoke_arn" {
+variable "upload_lambda_arn" {
   description = "Invoke ARN of the upload lambda function"
   type        = string
 }
 
-variable "download_lambda_invoke_arn" {
+variable "download_lambda_arn" {
   description = "Invoke ARN of the download lambda function"
   type        = string
 }
 
-variable "file_metadata_invoke_arn" {
+variable "file_metadata_arn" {
   description = "Invoke ARN of the fetch file metadata lambda function"
   type        = string
 }
 
-variable "delete_lambda_invoke_arn" {
+variable "delete_lambda_arn" {
   description = "Invoke ARN of the delete lambda function"
   type        = string
 }
