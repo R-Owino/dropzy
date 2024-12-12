@@ -24,13 +24,21 @@ data "archive_file" "download_lambda_zip_file" {
   output_path = "${path.module}/download_lambda.zip"
 }
 
+data "archive_file" "delete_file_lambda_zip_file" {
+  type        = "zip"
+  source_file = "${path.module}/delete_file_lambda.py"
+  output_path = "${path.module}/delete_file_lambda.zip"
+}
+
 resource "aws_lambda_function" "userdata" {
-  filename      = "lambda/userdata_lambda.zip"
+  filename      = "${path.module}/userdata_lambda.zip"
   function_name = "${var.project_name}-userdata-${var.environment}"
   role          = aws_iam_role.lambda_role.arn
   handler       = "userdata_lambda.handler"
   runtime       = "python3.12"
-  timeout       = 30
+  timeout       = 35
+
+  source_code_hash = data.archive_file.userdata_lambda_zip_file.output_base64sha256
 
   environment {
     variables = {
@@ -45,7 +53,9 @@ resource "aws_lambda_function" "upload" {
   role          = aws_iam_role.lambda_role.arn
   handler       = "upload_lambda.handler"
   runtime       = "python3.12"
-  timeout       = 30
+  timeout       = 35
+
+  source_code_hash = data.archive_file.upload_lambda_zip_file.output_base64sha256
 
   environment {
     variables = {
@@ -61,7 +71,9 @@ resource "aws_lambda_function" "fetch_file_metadata" {
   role          = aws_iam_role.lambda_role.arn
   handler       = "file_metadata_lambda.handler"
   runtime       = "python3.12"
-  timeout       = 30
+  timeout       = 35
+
+  source_code_hash = data.archive_file.fetch_file_metadata_zip_file.output_base64sha256
 
   environment {
     variables = {
@@ -76,7 +88,9 @@ resource "aws_lambda_function" "download" {
   role          = aws_iam_role.lambda_role.arn
   handler       = "download_lambda.handler"
   runtime       = "python3.12"
-  timeout       = 30
+  timeout       = 35
+
+  source_code_hash = data.archive_file.download_lambda_zip_file.output_base64sha256
 
   environment {
     variables = {
@@ -93,6 +107,8 @@ resource "aws_lambda_function" "delete_file" {
   handler       = "delete_file_lambda.handler"
   runtime       = "python3.12"
   timeout       = 30
+
+  source_code_hash = data.archive_file.delete_file_lambda_zip_file.output_base64sha256
 
   environment {
     variables = {
