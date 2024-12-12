@@ -5,6 +5,11 @@ output "userdata_function_arn" {
   value       = aws_lambda_function.userdata.arn
 }
 
+output "userdata_function_name" {
+  description = "Name of the userdata lambda function"
+  value       = aws_lambda_function.userdata.function_name
+}
+
 output "upload_function_name" {
   description = "Name of the upload Lambda function"
   value       = aws_lambda_function.upload.function_name
