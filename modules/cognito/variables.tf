@@ -8,11 +8,15 @@ variable "environment" {
   type        = string
 }
 
-variable "lambda_function_arn" {
-  description = "ARN of the Lambda function for user data handling"
+variable "userdata_function_arn" {
+  description = "ARN of the userdata lambda function"
   type        = string
 }
 
+variable "userdata_function_name" {
+  description = "Name of the userdata lambda function"
+  type        = string
+}
 variable "dynamodb_table_name" {
   description = "Name of the DynamoDB table for user data"
   type        = string
