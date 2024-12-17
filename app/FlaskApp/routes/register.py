@@ -18,7 +18,7 @@ def register():
         password = request.form.get("password")
 
         result = register_user(email, username, password)
-        if result["success"]:
+        if result["Success"]:
             flash("Registration Successful! Please verify your email.", "success")
             session["verification_email"] = email
             return redirect(url_for("confirm.confirm"))
