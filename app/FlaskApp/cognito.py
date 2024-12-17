@@ -1,6 +1,10 @@
 import boto3
+import logging
 from botocore.exceptions import ClientError
 from config import Config
+
+logger = logging.getLogger()
+logger.setLevel(logging.INFO)
 
 cognito_client = boto3.client("cognito-idp",
                               region_name=Config.AWS_REGION)
@@ -13,13 +17,16 @@ def register_user(email, username, password):
             Username=email,
             Password=password,
             UserAttributes=[
-                {"Name": "email", "value": "email"},
-                {"Name": "preferred_username", "value": username}
+                {"Name": "email", "Value": email},
+                {"Name": "preferred_username", "Value": username}
             ]
         )
         return {"Success": True}
     except ClientError as e:
-        return {"Success": False, "message": e.response["Error"]["Message"]}
+        return {
+            "Success": False,
+            "message": e.response["Error"]["Message"]
+        }
 
 def confirm_user(email, code):
     """verifies a user's email address"""
@@ -29,6 +36,7 @@ def confirm_user(email, code):
             Username=email,
             ConfirmationCode=code
         )
+        logger.info("User confirmation successful")
         return {"Success": True}
     except ClientError as e:
         return {"Success": False, "message": e.response["Error"]["Message"]}
@@ -44,13 +52,13 @@ def resend_verification_code(email):
     except ClientError as e:
         return {"Success": False, "message": e.response["Error"]["Message"]}
     
-def login_user(username, password):
+def login_user(email, password):
     """logs in a user"""
     try:
-        response = cognito_client.initite_auth(
+        response = cognito_client.initiate_auth(
             AuthFlow="USER_PASSWORD_AUTH",
-            AuthParameters={"USERNAME": username, "PASSWORD": password},
-            ClientID=Config.AWS_AWS_COGNITO_CLIENT_ID
+            AuthParameters={"USERNAME": email, "PASSWORD": password},
+            ClientId=Config.AWS_COGNITO_CLIENT_ID
         )
         return {"Success": True, "tokens": response["AuthenticationResult"]}
     except ClientError as e:
