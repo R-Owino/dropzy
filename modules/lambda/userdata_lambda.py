@@ -3,7 +3,11 @@
 import json
 import boto3
 import datetime
+import logging
 from botocore.exceptions import ClientError
+
+logger = logging.getLogger()
+logger.setLevel(logging.INFO)
 
 def lambda_handler(event, context):
     """
@@ -11,26 +15,27 @@ def lambda_handler(event, context):
     Stores user information in DynamoDB
     """
     # get the user data from the event
-    username = event['request']['userAttributes']['username']
+    username = event['request']['userAttributes']['preferred_username']
     email = event['request']['userAttributes']['email']
 
     # connect to dynamodb
     dynamodb = boto3.resource('dynamodb')
     table = dynamodb.Table('userdata')
 
+    curr_time = datetime.datetime.now(datetime.timezone.utc).isoformat()
+
     try:
         # save the user data to the table
         response = table.put_item(
             Item={
-                'userId': username,
-                'username': username,
-                'email': email,
-                'createdAt': datetime.utcnow().isoformat(),
-                'lastLogin': datetime.utcnow().isoformat()
+                'UserId': email,
+                'Username': username,
+                'CreatedAt': curr_time,
+                'LastLogin': curr_time
             },
-            ConditionExpression='attribute_not_exists(userId)'
+            ConditionExpression='attribute_not_exists(UserId)'
         )
-        print(f"User data saved: {response}")
+        logger.info(f"User data saved: {response}")
         return event
     except ClientError as e:
         # if the user already exists, return an error
@@ -40,5 +45,5 @@ def lambda_handler(event, context):
                 'body': json.dumps('User already exists')
             }
         else:
-            print(f"Error saving user data: {e}")
+            logger.error(f"Error saving user data: {e}")
             raise e
