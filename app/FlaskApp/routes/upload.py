@@ -5,7 +5,7 @@ from flask import Blueprint, request, jsonify, session
 
 upload_bp = Blueprint("upload", __name__)
 
-API_GATEWAY_URL = Config.API_GATEWAY_URL
+AWS_API_GATEWAY_UPLOAD_URL = Config.AWS_API_GATEWAY_UPLOAD_URL
 
 @upload_bp.route("/upload", methods=["POST"])
 def upload_file():
@@ -39,7 +39,7 @@ def upload_file():
 
         # forward request to API gateway
         headers = {"Authorization": f"Bearer {session.get('access_token')}"}
-        response = requests.post(API_GATEWAY_URL, json=payload, headers=headers)
+        response = requests.post(AWS_API_GATEWAY_UPLOAD_URL, json=payload, headers=headers)
 
         if response.status_code == 200:
             response_data.append(response.json())
