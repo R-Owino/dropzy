@@ -93,7 +93,7 @@
                 <input 
                     type="text" 
                     id="verification-code" 
-                    name="verification-code" 
+                    name="code" 
                     maxlength="6" 
                     placeholder="_ _ _ _ _ _" 
                     required
@@ -109,14 +109,24 @@
 
     <script>
         function resendCode() {
-            // This would typically call a backend route to resend verification code
-            fetch("{{ url_for('resend_verification') }}", {
+            fetch("{{ url_for('resend.resend_verification') }}", {
                 method: 'POST'
             })
             .then(response => {
-                alert('A new verification code has been sent to your email.');
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.success) {
+                    alert('A new verification code has been sent to your email.');
+                } else {
+                    alert(data.message || 'Failed to resend verification code.');
+                }
             })
             .catch(error => {
+                console.error('Error:', error);
                 alert('Failed to resend verification code. Please try again.');
             });
         }
