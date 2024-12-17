@@ -4,7 +4,7 @@ from flask import Blueprint, request, jsonify, session
 
 delete_bp = Blueprint("delete", __name__)
 
-API_GATEWAY_URL = Config.API_GATEWAY_URL
+AWS_API_GATEWAY_DELETE_URL = Config.AWS_API_GATEWAY_DELETE_URL
 
 @delete_bp.route("/delete", methods=["DELETE"])
 def delete_file():
@@ -21,7 +21,7 @@ def delete_file():
     try:
         headers = {"Authorization": f"Bearer {session.get.access_token}"}
         response = requests.delete(
-            API_GATEWAY_URL,
+            AWS_API_GATEWAY_DELETE_URL,
             headers=headers,
             params={"file_key": file_key}
         )
