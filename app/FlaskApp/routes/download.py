@@ -4,7 +4,7 @@ from config import Config
 
 download_bp = Blueprint("download", __name__)
 
-API_GATEWAY_URL = Config.API_GATEWAY_URL
+AWS_API_GATEWAY_DOWNLOAD_URL = Config.AWS_API_GATEWAY_DOWNLOAD_URL
 
 @download_bp.route("/download", methods=["GET"])
 def download_file():
@@ -21,7 +21,7 @@ def download_file():
 
         # forward the query string to the download lambda function
         response = requests.get(
-            API_GATEWAY_URL,
+            AWS_API_GATEWAY_DOWNLOAD_URL,
             headers=headers,
             params=request.args
         )
