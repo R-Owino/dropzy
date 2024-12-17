@@ -4,7 +4,7 @@ from flask import Blueprint, jsonify, session
 
 file_metadata_bp = Blueprint("file_metadata", __name__)
 
-API_GATEWAY_URL = Config.API_GATEWAY_URL
+AWS_API_GATEWAY_FETCH_METADATA_URL = Config.AWS_API_GATEWAY_FETCH_METADATA_URL
 
 @file_metadata_bp.route("/file-metadata", methods=["GET"])
 def file_metadata():
@@ -19,7 +19,7 @@ def file_metadata():
     try:
         headers = {"Authorization": f"Bearer {session.get.access_token}"}
 
-        response = requests.get(API_GATEWAY_URL, headers=headers)
+        response = requests.get(AWS_API_GATEWAY_FETCH_METADATA_URL, headers=headers)
 
         if response.status_code == 200:
             return jsonify(response.json()), 200
