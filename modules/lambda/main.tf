@@ -34,7 +34,7 @@ resource "aws_lambda_function" "userdata" {
   filename      = "${path.module}/userdata_lambda.zip"
   function_name = "${var.project_name}-userdata-${var.environment}"
   role          = aws_iam_role.lambda_role.arn
-  handler       = "userdata_lambda.handler"
+  handler       = "userdata_lambda.lambda_handler"
   runtime       = "python3.12"
   timeout       = 35
 
@@ -51,7 +51,7 @@ resource "aws_lambda_function" "upload" {
   filename      = "${path.module}/upload_lambda.zip"
   function_name = "${var.project_name}-upload-${var.environment}"
   role          = aws_iam_role.lambda_role.arn
-  handler       = "upload_lambda.handler"
+  handler       = "upload_lambda.lambda_handler"
   runtime       = "python3.12"
   timeout       = 35
 
@@ -69,7 +69,7 @@ resource "aws_lambda_function" "fetch_file_metadata" {
   filename      = "${path.module}/file_metadata_lambda.zip"
   function_name = "${var.project_name}-fetch_metadata-${var.environment}"
   role          = aws_iam_role.lambda_role.arn
-  handler       = "file_metadata_lambda.handler"
+  handler       = "file_metadata_lambda.lambda_handler"
   runtime       = "python3.12"
   timeout       = 35
 
@@ -86,7 +86,7 @@ resource "aws_lambda_function" "download" {
   filename      = "${path.module}/download_lambda.zip"
   function_name = "${var.project_name}-download-${var.environment}"
   role          = aws_iam_role.lambda_role.arn
-  handler       = "download_lambda.handler"
+  handler       = "download_lambda.lambda_handler"
   runtime       = "python3.12"
   timeout       = 35
 
@@ -104,7 +104,7 @@ resource "aws_lambda_function" "delete_file" {
   filename      = "${path.module}/delete_file_lambda.zip"
   function_name = "${var.project_name}-delete-${var.environment}"
   role          = aws_iam_role.lambda_role.arn
-  handler       = "delete_file_lambda.handler"
+  handler       = "delete_file_lambda.lambda_handler"
   runtime       = "python3.12"
   timeout       = 30
 
