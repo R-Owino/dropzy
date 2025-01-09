@@ -33,6 +33,7 @@ def login():
             session["username"] = username
             session["access_token"] = result["tokens"]["AccessToken"]
             session["id_token"] = result["tokens"]["IdToken"]
+            session["logged_in"] = True
 
             session.modified = True
 
