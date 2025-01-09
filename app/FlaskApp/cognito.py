@@ -57,7 +57,10 @@ def login_user(email, password):
     try:
         response = cognito_client.initiate_auth(
             AuthFlow="USER_PASSWORD_AUTH",
-            AuthParameters={"USERNAME": email, "PASSWORD": password},
+            AuthParameters={
+                "USERNAME": email,
+                "PASSWORD": password
+            },
             ClientId=Config.AWS_COGNITO_CLIENT_ID
         )
         return {"Success": True, "tokens": response["AuthenticationResult"]}
