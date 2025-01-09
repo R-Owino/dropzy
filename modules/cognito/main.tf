@@ -69,11 +69,6 @@ resource "aws_cognito_user_pool_client" "userpool_client" {
 
 data "aws_region" "current" {}
 
-resource "aws_cognito_user_pool_domain" "cognito_domain" {
-  domain       = "${var.project_name}-${var.environment}"
-  user_pool_id = aws_cognito_user_pool.userpool.id
-}
-
 resource "aws_lambda_permission" "allow_cognito" {
   statement_id  = "AllowCognitoInvoke"
   action        = "lambda:InvokeFunction"
