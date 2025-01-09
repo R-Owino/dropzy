@@ -32,7 +32,7 @@ def login():
 
             session["username"] = username
             session["access_token"] = result["tokens"]["AccessToken"]
-            session["logged_in"] = True
+            session["id_token"] = result["tokens"]["IdToken"]
 
             session.modified = True
 
