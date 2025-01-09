@@ -1,5 +1,6 @@
 """ saves user data to a DynamoDB table on successful signups """
 
+import os
 import json
 import boto3
 import datetime
@@ -19,13 +20,14 @@ def lambda_handler(event, context):
     email = event['request']['userAttributes']['email']
 
     # connect to dynamodb
-    dynamodb = boto3.resource('dynamodb')
-    table = dynamodb.Table('userdata')
+    dynamodb = boto3.resource("dynamodb")
+    TABLE_NAME = os.environ["DYNAMODB_TABLE_NAME"]
 
     curr_time = datetime.datetime.now(datetime.timezone.utc).isoformat()
 
     try:
         # save the user data to the table
+        table = dynamodb.Table(TABLE_NAME)
         response = table.put_item(
             Item={
                 'UserId': email,
