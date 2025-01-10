@@ -1,30 +1,53 @@
 """ fetches a file metadata from the documents table """
 
 import boto3
-import json
+import simplejson as json
 import os
-from boto3.dynamodb.conditions import key
+import logging
+from boto3.dynamodb.conditions import Key
+
+logger = logging.getLogger()
+logger.setLevel(logging.INFO)
+
+dynamodb = boto3.resource("dynamodb")
+TABLE_NAME = os.environ["DYNAMODB_TABLE_NAME"]
 
 def lambda_handler(event, context):
     try:
-        dynamodb = boto3.resource("dynamodb")
-        TABLE_NAME = os.environ["TABLE_NAME"]
+        logger.info(f"Received event: {json.dumps(event)}")
+        
         table = dynamodb.Table(TABLE_NAME)
 
-        response = table.scan()
+        # scan the table for the files
+        response = table.scan(
+            FilterExpression=Key("file_key").begins_with("uploads/")
+        )
+
+        # extract the files
         files = response.get("Items", [])
-
-        sorted_files = sorted(files, key=lambda x: x["upload_timestamp"], reverse=True)
-
-        recent_files = sorted_files[:15]
+        logger.info(f"Files received: {len(files)}")
 
         return {
             'statusCode': 200,
-            'body': json.dumps({'files': recent_files})
+            'headers': {
+                'Content-Type': 'application/json',
+                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Methods': 'GET, OPTIONS',
+                'Access-Control-Allow-Headers': 'Content-Type, Authorization'
+            },
+            'body': json.dumps({
+                'message': 'Success',
+                'files': files
+            })
         }
     
     except Exception as e:
+        logger.error(f"Error: {str(e)}", exc_info=True)
         return {
             'statusCode': 500,
+            'headers': {
+                'Content-Type': 'application/json',
+                'Access-Control-Allow-Origin': '*'
+            },
             'body': json.dumps({'error': str(e)})
         }
