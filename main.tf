@@ -24,8 +24,8 @@ module "lambda" {
 
   project_name                           = var.project_name
   environment                            = var.environment
-  dynamodb_userdata_table_name           = module.dynamodb.table_name
-  dynamodb_userdata_table_arn            = module.dynamodb.table_arn
+  dynamodb_userdata_table_name           = module.dynamodb.userdata_table_name
+  dynamodb_userdata_table_arn            = module.dynamodb.userdata_table_arn
   dynamodb_documents_metadata_table_name = module.dynamodb.documents_metadata_table_name
   dynamodb_documents_metadata_table_arn  = module.dynamodb.documents_metadata_table_arn
   s3_bucket_name                         = module.s3.bucket_name
