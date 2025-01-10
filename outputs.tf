@@ -5,19 +5,9 @@ output "cognito_user_pool_id" {
   value       = module.cognito.userpool_id
 }
 
-output "cognito_user_pool_arn" {
-  description = "ARN of the Cognito user pool"
-  value       = module.cognito.userpool_arn
-}
-
 output "cognito_user_pool_client_id" {
   description = "ID of the Cognito user pool client"
   value       = module.cognito.userpool_client_id
-}
-
-output "cognito_userpool_domain" {
-  description = "The Amazon Cognito domain for the user pool"
-  value       = module.cognito.cognito_domain
 }
 
 output "api_gateway_invoke_url" {
