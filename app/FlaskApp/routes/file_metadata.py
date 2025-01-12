@@ -11,15 +11,16 @@ def file_metadata():
     """
     Fetch recent file metadata from documents DynamoDB table
     via API gateway
-    Returns the 15 most recent files
     """
     if "username" not in session:
         return jsonify({"error": "Unauthorized"}), 401
-    
-    try:
-        headers = {"Authorization": f"Bearer {session.get.access_token}"}
 
-        response = requests.get(AWS_API_GATEWAY_FETCH_METADATA_URL, headers=headers)
+    try:
+        headers = {"Authorization": f"Bearer {session.get('id_token')}"}
+        response = requests.get(
+            AWS_API_GATEWAY_FETCH_METADATA_URL,
+            headers=headers
+        )
 
         if response.status_code == 200:
             return jsonify(response.json()), 200
