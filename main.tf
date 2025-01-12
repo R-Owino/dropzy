@@ -40,11 +40,9 @@ module "api_gateway" {
   environment                        = var.environment
   userpool_arn                       = module.cognito.userpool_arn
   upload_lambda_arn                  = module.lambda.upload_function_arn
-  download_lambda_arn                = module.lambda.download_function_arn
   file_metadata_arn                  = module.lambda.file_metadata_arn
   delete_lambda_arn                  = module.lambda.delete_function_arn
   upload_lambda_function_name        = module.lambda.upload_function_name
-  download_lambda_function_name      = module.lambda.download_function_name
   file_metadata_lambda_function_name = module.lambda.file_metadata_function_name
   delete_lambda_function_name        = module.lambda.delete_lambda_function_name
 }
