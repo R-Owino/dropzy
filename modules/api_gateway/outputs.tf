@@ -20,11 +20,6 @@ output "upload_url" {
   value       = "${aws_api_gateway_stage.files.invoke_url}/files/upload"
 }
 
-output "download_url" {
-  description = "Invoke URL for downloading files"
-  value       = "${aws_api_gateway_stage.files.invoke_url}/files/download"
-}
-
 output "fetch_metadata_url" {
   description = "Invoke URL for fetching file metadata"
   value       = "${aws_api_gateway_stage.files.invoke_url}/files/metadata"
