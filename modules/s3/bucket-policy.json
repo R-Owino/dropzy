@@ -1,14 +1,25 @@
 {
-    "Version": "2012-10-17",
-    "Statement": [
+  "Version": "2012-10-17",
+  "Statement": [
       {
-        "Effect": "Allow",
-        "Principal": {
-          "Service": "lambda.amazonaws.com"
-        },
-        "Action": "s3:*",
-        "Resource": ["${bucket_arn}", "${bucket_arn}/*"]
+          "Effect": "Allow",
+          "Principal": {
+              "Service": "lambda.amazonaws.com"
+          },
+          "Action": "s3:*",
+          "Resource": ["${bucket_arn}", "${bucket_arn}/*"]
+      },
+      {
+          "Sid": "AllowPresignedUrlUploads",
+          "Effect": "Allow",
+          "Principal": "*",
+          "Action": "s3:PutObject",
+          "Resource": "${bucket_arn}/*",
+          "Condition": {
+              "StringEquals": {
+                  "s3:signatureversion": "AWS4-HMAC-SHA256"
+              }
+          }
       }
-    ]
+  ]
 }
-  
