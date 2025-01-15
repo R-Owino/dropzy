@@ -20,11 +20,6 @@ variable "userpool_arn" {
   type        = string
 }
 
-variable "upload_lambda_arn" {
-  description = "Invoke ARN of the upload lambda function"
-  type        = string
-}
-
 variable "file_metadata_arn" {
   description = "Invoke ARN of the fetch file metadata lambda function"
   type        = string
@@ -32,11 +27,6 @@ variable "file_metadata_arn" {
 
 variable "delete_lambda_arn" {
   description = "Invoke ARN of the delete lambda function"
-  type        = string
-}
-
-variable "upload_lambda_function_name" {
-  description = "Name of the upload lambda function"
   type        = string
 }
 
