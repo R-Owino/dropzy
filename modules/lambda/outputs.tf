@@ -20,16 +20,6 @@ output "upload_function_arn" {
   value       = aws_lambda_function.upload.arn
 }
 
-output "download_function_name" {
-  description = "Name of the download lambda function"
-  value       = aws_lambda_function.download.function_name
-}
-
-output "download_function_arn" {
-  description = "ARN of the download lambda function"
-  value       = aws_lambda_function.download.arn
-}
-
 output "file_metadata_function_name" {
   description = "Name of the file metadata fetching function"
   value       = aws_lambda_function.fetch_file_metadata.function_name
