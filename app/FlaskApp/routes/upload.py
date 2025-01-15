@@ -1,75 +1,95 @@
-import base64
-import requests
+import os
+import boto3
 import logging
+import uuid
 from config import Config
+from flask_cors import cross_origin
 from flask import Blueprint, request, jsonify, session
+from werkzeug.utils import secure_filename
+from botocore.exceptions import NoCredentialsError, PartialCredentialsError
 
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
 upload_bp = Blueprint("upload", __name__)
 
-AWS_API_GATEWAY_UPLOAD_URL = Config.AWS_API_GATEWAY_UPLOAD_URL
+s3 = boto3.client("s3")
+BUCKET_NAME = Config.S3_BUCKET_NAME
 
-@upload_bp.route("/upload", methods=["POST"])
-def upload_file():
-    """handles file upload to s3 bucket"""
+# map filetypes to folders in S3
+FILE_TYPE_MAP = {
+    "text-files": ["pdf", "doc", "docx", "txt", "md", "epub", "odf"],
+    "images": ["jpg", "jpeg", "png", "gif", "gifv", "bmp", "svg", "ico"],
+    "video-files": ["mp4", "mov", "avi", "mkv", "webm"],
+    "audio-files": ["mp3", "wav", "aac"],
+    "spreadsheet-files": ["xlsx", "csv"],
+    "archive-files": ["zip", "rar", "7z", "tar", "gz"],
+    "code-files": ["sh", "js", "py", "html", "css", "json", "xml"],
+    "presentation-files": ["ppt", "pptx"],
+    "app-files": ["apk", "exe", "dll"],
+    "disc-files": ["iso"],
+    "log-files": ["log"],
+    "config-files": ["conf", "ini", "yaml", "yml"]
+
+}
+
+def get_folder(extension):
+    """determines file folder based on file extension"""
+    for folder, extensions in FILE_TYPE_MAP.items():
+        if extension.lower() in extensions:
+            return folder
+        return "other"
+
+@upload_bp.route("/upload/presigned-url", methods=["POST"])
+@cross_origin(
+    origins="http://127.127.0.0.1:5000",
+    allow_headers=["Content-Type", "Authorization"]
+)
+def generate_presigned_url():
+    """generates a presigned url for file upload to S3"""
 
     if "username" not in session:
         return jsonify({"error": "Unauthorized"}), 401
     
-    if "file" not in request.files:
-        return jsonify({"error": "No file provided"}), 400
-    
-    file = request.files["file"]
+    data = request.get_json()
+    file_name = data.get("fileName")
+    content_type = data.get("contentType")
+    file_size = data.get("fileSize")
 
-    # read the file content
-    file_content = file.read()
-
-    # validate file size
-    MAX_SIZE = 2.5 * 1024 * 1024 * 1024
-    if len(file_content) > MAX_SIZE:
+    if not file_name or not content_type or file_size is None:
         return jsonify({
-            "error": f"{file.filename} exceeds the maximum size"}), 400
+            "error": "Invalid request"
+        }), 400
     
-    # encode the file content
-    file_base64 = base64.b64encode(file_content).decode("utf-8")
-
-    # prepare payload for API Gateway
-    payload = {
-        "file_content": file_base64,
-        "file_name": file.filename,
-        "content_type": file.content_type
-        }
-
-    # forward request to API gateway
-    id_token = session.get("id_token")
+    # check if file size exceeds the 2.5GB limit
+    max_size = 2.5 * 1024 * 1024 * 1024
+    if file_size > max_size:
+        return jsonify({
+            "error": "File size exceeds the max limit"
+        }), 400
+    
     try:
-        if not id_token:
-            return jsonify({
-                "error": "no ID token found"
-            }), 401
-        headers = {
-            "Authorization": f"Bearer {id_token}",
-            "Content-Type": "application/json"
-        }
-        logger.info(f"Request headers: {headers}")
+        file_extension = os.path.splitext(file_name)[1][1:]
+        folder = get_folder(file_extension)
+        secure_name = secure_filename(file_name)
 
-        response = requests.post(
-            AWS_API_GATEWAY_UPLOAD_URL,
-            json=payload,
-            headers=headers,
-            timeout=(3.05, 300)
+        file_key = f"{folder}/{uuid.uuid4()}-{secure_name}"
+
+        # generate pre-signed URL for PUT
+        presigned_url = s3.generate_presigned_url(
+            "put_object",
+            Params={
+                "Bucket": BUCKET_NAME,
+                "Key": file_key,
+                "ContentType": content_type
+            },
+            ExpiresIn=3600
         )
-
-        logger.info(
-            f"API Gateway response: {response.status_code} {response.text}"
-        )
-
-        response.raise_for_status()
-        return jsonify(response.json())
-    
-    except requests.exceptions.RequestException as e:
         return jsonify({
-            "error": f"Failed to upload {file.filename}: {str(e)}"
+            "url": presigned_url,
+            "key": file_key
+        })
+    except (NoCredentialsError, PartialCredentialsError) as e:
+        return jsonify({
+            "error": str(e)
         }), 500
