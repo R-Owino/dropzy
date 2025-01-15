@@ -15,11 +15,6 @@ output "api_gateway_invoke_url" {
   value       = aws_api_gateway_stage.files.invoke_url
 }
 
-output "upload_url" {
-  description = "Invoke URL for uploading files"
-  value       = "${aws_api_gateway_stage.files.invoke_url}/files/upload"
-}
-
 output "fetch_metadata_url" {
   description = "Invoke URL for fetching file metadata"
   value       = "${aws_api_gateway_stage.files.invoke_url}/files/metadata"
