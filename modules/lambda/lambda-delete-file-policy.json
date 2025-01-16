@@ -10,7 +10,8 @@
             ],
             "Resource": [
                 "${dynamodb_documents_metadata_table_arn}",
-                "${s3_bucket_arn}"
+                "${s3_bucket_arn}",
+                "${s3_bucket_arn}/*-files/*"
             ]
         }
     ]
