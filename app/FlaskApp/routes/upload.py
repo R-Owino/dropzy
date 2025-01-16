@@ -18,8 +18,8 @@ BUCKET_NAME = Config.S3_BUCKET_NAME
 
 # map filetypes to folders in S3
 FILE_TYPE_MAP = {
-    "text-files": ["pdf", "doc", "docx", "txt", "md", "epub", "odf"],
-    "images": ["jpg", "jpeg", "png", "gif", "gifv", "bmp", "svg", "ico"],
+    "text-files": ["pdf", "doc", "docx", "txt", "md", "epub", "odt"],
+    "image-files": ["jpg", "jpeg", "png", "gif", "gifv", "bmp", "svg", "ico"],
     "video-files": ["mp4", "mov", "avi", "mkv", "webm"],
     "audio-files": ["mp3", "wav", "aac"],
     "spreadsheet-files": ["xlsx", "csv"],
@@ -42,7 +42,7 @@ def get_folder(extension):
 
 @upload_bp.route("/upload/presigned-url", methods=["POST"])
 @cross_origin(
-    origins="http://127.127.0.0.1:5000",
+    origins="http://127.0.0.1:5000",
     allow_headers=["Content-Type", "Authorization"]
 )
 def generate_presigned_url():
