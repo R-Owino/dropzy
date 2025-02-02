@@ -25,17 +25,27 @@ variable "file_metadata_arn" {
   type        = string
 }
 
-variable "delete_lambda_arn" {
-  description = "Invoke ARN of the delete lambda function"
-  type        = string
-}
-
 variable "file_metadata_lambda_function_name" {
   description = "Name of the fetch file metadata lambda function"
   type        = string
 }
 
+variable "file_metadata_invoke_arn" {
+  description = "Invoke ARN of the fetch file metadata lambda function"
+  type        = string
+}
+
+variable "delete_lambda_arn" {
+  description = "Invoke ARN of the delete lambda function"
+  type        = string
+}
+
 variable "delete_lambda_function_name" {
   description = "Name of the delete lambda function"
+  type        = string
+}
+
+variable "delete_lambda_invoke_arn" {
+  description = "Invoke ARN of the delete lambda function"
   type        = string
 }
