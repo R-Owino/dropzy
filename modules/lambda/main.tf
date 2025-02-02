@@ -18,12 +18,6 @@ data "archive_file" "fetch_file_metadata_zip_file" {
   output_path = "${path.module}/file_metadata_lambda.zip"
 }
 
-data "archive_file" "download_lambda_zip_file" {
-  type        = "zip"
-  source_file = "${path.module}/download_lambda.py"
-  output_path = "${path.module}/download_lambda.zip"
-}
-
 data "archive_file" "delete_file_lambda_zip_file" {
   type        = "zip"
   source_file = "${path.module}/delete_file_lambda.py"
@@ -42,7 +36,7 @@ resource "aws_lambda_function" "userdata" {
 
   environment {
     variables = {
-      DYNAMODB_TABLE = var.dynamodb_userdata_table_name
+      DYNAMODB_TABLE_NAME = var.dynamodb_userdata_table_name
     }
   }
 }
@@ -67,7 +61,7 @@ resource "aws_lambda_function" "upload" {
 
 resource "aws_lambda_function" "fetch_file_metadata" {
   filename      = "${path.module}/file_metadata_lambda.zip"
-  function_name = "${var.project_name}-fetch_metadata-${var.environment}"
+  function_name = "${var.project_name}-fetch-file-metadata-${var.environment}"
   role          = aws_iam_role.lambda_role.arn
   handler       = "file_metadata_lambda.lambda_handler"
   runtime       = "python3.12"
@@ -77,24 +71,6 @@ resource "aws_lambda_function" "fetch_file_metadata" {
 
   environment {
     variables = {
-      DYNAMODB_TABLE_NAME = var.dynamodb_documents_metadata_table_name
-    }
-  }
-}
-
-resource "aws_lambda_function" "download" {
-  filename      = "${path.module}/download_lambda.zip"
-  function_name = "${var.project_name}-download-${var.environment}"
-  role          = aws_iam_role.lambda_role.arn
-  handler       = "download_lambda.lambda_handler"
-  runtime       = "python3.12"
-  timeout       = 35
-
-  source_code_hash = data.archive_file.download_lambda_zip_file.output_base64sha256
-
-  environment {
-    variables = {
-      S3_BUCKET_NAME      = var.s3_bucket_name
       DYNAMODB_TABLE_NAME = var.dynamodb_documents_metadata_table_name
     }
   }
@@ -128,12 +104,29 @@ resource "aws_iam_role_policy_attachment" "lambda_basic_execution" {
   role       = aws_iam_role.lambda_role.name
 }
 
-resource "aws_iam_role_policy" "lambda_dynamodb" {
+resource "aws_iam_role_policy" "userdata_lambda_dynamodb" {
   name = "${var.project_name}-userdata-lambda-dynamodb-policy-${var.environment}"
   role = aws_iam_role.lambda_role.name
 
-  policy = templatefile("${path.module}/lambda-dynamodb-policy.json", {
-    dynamodb_userdata_table_arn           = var.dynamodb_userdata_table_arn,
+  policy = templatefile("${path.module}/userdata-lambda-dynamodb-policy.json", {
+    dynamodb_userdata_table_arn = var.dynamodb_userdata_table_arn
+  })
+}
+
+resource "aws_iam_role_policy" "upload_file_dynamodb" {
+  name = "${var.project_name}-upload-dynamodb-policy-${var.environment}"
+  role = aws_iam_role.lambda_role.name
+
+  policy = templatefile("${path.module}/upload-lambda-dynamodb-policy.json", {
+    dynamodb_documents_metadata_table_arn = var.dynamodb_documents_metadata_table_arn
+  })
+}
+
+resource "aws_iam_role_policy" "file_metadata_lambda_dynamodb" {
+  name = "${var.project_name}-file-metadata-lambda-dynamodb-policy-${var.environment}"
+  role = aws_iam_role.lambda_role.name
+
+  policy = templatefile("${path.module}/file-metadata-lambda-dynamodb-policy.json", {
     dynamodb_documents_metadata_table_arn = var.dynamodb_documents_metadata_table_arn
   })
 }
