@@ -39,7 +39,9 @@ def confirm_user(email, code):
         logger.info("User confirmation successful")
         return {"Success": True}
     except ClientError as e:
-        return {"Success": False, "message": e.response["Error"]["Message"]}
+        error_message = e.response["Error"]["Message"]
+        logger.error(f"Failed to confirm user {email}: {error_message}")
+        return {"Success": False, "message": error_message}
 
 def resend_verification_code(email):
     """resends the verification code upon request"""
