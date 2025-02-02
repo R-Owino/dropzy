@@ -10,11 +10,16 @@ from routes.register import register_bp
 from routes.confirm import confirm_bp
 from routes.resend_code import resend_bp
 from routes.main import main_bp
-from routes.upload import upload_bp
+from routes import upload_bp
 from routes.download import download_bp
-from routes.file_metadata import file_metadata_bp
+from routes import file_metadata_bp
 from routes.delete import delete_bp
 from routes.logout import logout_bp
+
+import routes.upload
+import routes.check_file
+import routes.file_metadata
+import routes.search_file
 
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
