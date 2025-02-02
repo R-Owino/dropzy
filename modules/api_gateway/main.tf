@@ -1,8 +1,7 @@
-# routes document upload and download requests
 
 resource "aws_api_gateway_rest_api" "files" {
   name        = "${var.project_name}-${var.environment}-rest-api"
-  description = "Document upload and download API"
+  description = "File metadata upload and file delete API"
 
   endpoint_configuration {
     types = ["REGIONAL"]
@@ -23,119 +22,6 @@ resource "aws_api_gateway_resource" "fileshare" {
   path_part   = "files"
 }
 
-### UPLOAD RESOURCE AND METHOD ###
-resource "aws_api_gateway_resource" "upload_file" {
-  rest_api_id = aws_api_gateway_rest_api.files.id
-  parent_id   = aws_api_gateway_resource.fileshare.id
-  path_part   = "upload"
-}
-
-resource "aws_api_gateway_method" "upload" {
-  rest_api_id   = aws_api_gateway_rest_api.files.id
-  resource_id   = aws_api_gateway_resource.upload_file.id
-  http_method   = "POST"
-  authorization = "COGNITO_USER_POOLS"
-  authorizer_id = aws_api_gateway_authorizer.cognito.id
-}
-
-resource "aws_api_gateway_integration" "upload_lambda" {
-  depends_on              = [aws_api_gateway_method.upload]
-  rest_api_id             = aws_api_gateway_rest_api.files.id
-  resource_id             = aws_api_gateway_resource.upload_file.id
-  http_method             = aws_api_gateway_method.upload.http_method
-  integration_http_method = "POST"
-  type                    = "AWS"
-  uri                     = "arn:aws:apigateway:${var.aws_region}:lambda:path/2015-03-31/functions/${var.upload_lambda_arn}/invocations"
-
-}
-
-resource "aws_api_gateway_method_response" "upload_method_response" {
-  rest_api_id = aws_api_gateway_rest_api.files.id
-  resource_id = aws_api_gateway_resource.upload_file.id
-  http_method = aws_api_gateway_method.upload.http_method
-  status_code = "200"
-
-  response_parameters = {
-    "method.response.header.Access-Control-Allow-Headers" = true
-    "method.response.header.Access-Control-Allow-Methods" = true
-    "method.response.header.Access-Control-Allow-Origin"  = true
-  }
-}
-
-resource "aws_api_gateway_integration_response" "upload_integration_response" {
-  rest_api_id = aws_api_gateway_rest_api.files.id
-  resource_id = aws_api_gateway_resource.upload_file.id
-  http_method = aws_api_gateway_method.upload.http_method
-  status_code = aws_api_gateway_method_response.upload_method_response.status_code
-
-  response_parameters = {
-    "method.response.header.Access-Control-Allow-Headers" = "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
-    "method.response.header.Access-Control-Allow-Methods" = "'OPTIONS,DELETE,GET,POST'"
-    "method.response.header.Access-Control-Allow-Origin"  = "'*'"
-  }
-
-  depends_on = [
-    aws_api_gateway_method.upload,
-    aws_api_gateway_integration.upload_lambda
-  ]
-}
-
-### DOWNLOAD RESOURCE AND METHOD ###
-resource "aws_api_gateway_resource" "download_file" {
-  rest_api_id = aws_api_gateway_rest_api.files.id
-  parent_id   = aws_api_gateway_resource.fileshare.id
-  path_part   = "download"
-}
-
-resource "aws_api_gateway_method" "download" {
-  rest_api_id   = aws_api_gateway_rest_api.files.id
-  resource_id   = aws_api_gateway_resource.download_file.id
-  http_method   = "GET"
-  authorization = "COGNITO_USER_POOLS"
-  authorizer_id = aws_api_gateway_authorizer.cognito.id
-}
-
-resource "aws_api_gateway_integration" "download_lambda" {
-  depends_on              = [aws_api_gateway_method.download]
-  rest_api_id             = aws_api_gateway_rest_api.files.id
-  resource_id             = aws_api_gateway_resource.download_file.id
-  http_method             = aws_api_gateway_method.download.http_method
-  integration_http_method = "GET"
-  type                    = "AWS"
-  uri                     = "arn:aws:apigateway:${var.aws_region}:lambda:path/2015-03-31/functions/${var.download_lambda_arn}/invocations"
-}
-
-resource "aws_api_gateway_method_response" "download_method_response" {
-  rest_api_id = aws_api_gateway_rest_api.files.id
-  resource_id = aws_api_gateway_resource.download_file.id
-  http_method = aws_api_gateway_method.download.http_method
-  status_code = "200"
-
-  response_parameters = {
-    "method.response.header.Access-Control-Allow-Headers" = true
-    "method.response.header.Access-Control-Allow-Methods" = true
-    "method.response.header.Access-Control-Allow-Origin"  = true
-  }
-}
-
-resource "aws_api_gateway_integration_response" "download_integration_response" {
-  rest_api_id = aws_api_gateway_rest_api.files.id
-  resource_id = aws_api_gateway_resource.download_file.id
-  http_method = aws_api_gateway_method.download.http_method
-  status_code = aws_api_gateway_method_response.download_method_response.status_code
-
-  response_parameters = {
-    "method.response.header.Access-Control-Allow-Headers" = "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
-    "method.response.header.Access-Control-Allow-Methods" = "'OPTIONS,DELETE,GET,POST'"
-    "method.response.header.Access-Control-Allow-Origin"  = "'*'"
-  }
-
-  depends_on = [
-    aws_api_gateway_method.download,
-    aws_api_gateway_integration.download_lambda
-  ]
-}
-
 ### FETCH FILE METADATA RESOURCE AND METHOD ###
 resource "aws_api_gateway_resource" "file_metadata" {
   rest_api_id = aws_api_gateway_rest_api.files.id
@@ -149,6 +35,11 @@ resource "aws_api_gateway_method" "file_metadata" {
   http_method   = "GET"
   authorization = "COGNITO_USER_POOLS"
   authorizer_id = aws_api_gateway_authorizer.cognito.id
+
+  request_parameters = {
+    "method.request.querystring.search" = false
+    "method.request.querystring.limit"  = false
+  }
 }
 
 resource "aws_api_gateway_integration" "file_metadata_lambda" {
@@ -156,9 +47,20 @@ resource "aws_api_gateway_integration" "file_metadata_lambda" {
   rest_api_id             = aws_api_gateway_rest_api.files.id
   resource_id             = aws_api_gateway_resource.file_metadata.id
   http_method             = aws_api_gateway_method.file_metadata.http_method
-  integration_http_method = "GET"
-  type                    = "AWS"
-  uri                     = "arn:aws:apigateway:${var.aws_region}:lambda:path/2015-03-31/functions/${var.file_metadata_arn}/invocations"
+  integration_http_method = "POST"
+  type                    = "AWS_PROXY"
+  uri                     = var.file_metadata_invoke_arn
+  request_templates = {
+    "application/json" = jsonencode({
+      queryStringParameters = {
+        search = "$input.params('search')"
+        limit  = "$input.params('limit')"
+      }
+    })
+  }
+
+  passthrough_behavior = "WHEN_NO_TEMPLATES"
+
 }
 
 resource "aws_api_gateway_method_response" "metadata_method_response" {
@@ -182,7 +84,7 @@ resource "aws_api_gateway_integration_response" "metadata_integration_response" 
 
   response_parameters = {
     "method.response.header.Access-Control-Allow-Headers" = "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
-    "method.response.header.Access-Control-Allow-Methods" = "'OPTIONS,DELETE,GET,POST'"
+    "method.response.header.Access-Control-Allow-Methods" = "'OPTIONS,GET'"
     "method.response.header.Access-Control-Allow-Origin"  = "'*'"
   }
 
@@ -212,9 +114,9 @@ resource "aws_api_gateway_integration" "delete_lambda" {
   rest_api_id             = aws_api_gateway_rest_api.files.id
   resource_id             = aws_api_gateway_resource.delete_file.id
   http_method             = aws_api_gateway_method.delete.http_method
-  integration_http_method = "DELETE"
-  type                    = "AWS"
-  uri                     = "arn:aws:apigateway:${var.aws_region}:lambda:path/2015-03-31/functions/${var.delete_lambda_arn}/invocations"
+  integration_http_method = "POST"
+  type                    = "AWS_PROXY"
+  uri                     = var.delete_lambda_invoke_arn
 }
 
 resource "aws_api_gateway_method_response" "delete_method_response" {
@@ -238,7 +140,7 @@ resource "aws_api_gateway_integration_response" "delete_integration_response" {
 
   response_parameters = {
     "method.response.header.Access-Control-Allow-Headers" = "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
-    "method.response.header.Access-Control-Allow-Methods" = "'OPTIONS,DELETE,GET,POST'"
+    "method.response.header.Access-Control-Allow-Methods" = "'OPTIONS,DELETE'"
     "method.response.header.Access-Control-Allow-Origin"  = "'*'"
   }
 
@@ -289,7 +191,7 @@ resource "aws_api_gateway_integration_response" "cors_options_integration_respon
 
   response_parameters = {
     "method.response.header.Access-Control-Allow-Headers" = "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
-    "method.response.header.Access-Control-Allow-Methods" = "'OPTIONS,DELETE,GET,POST'"
+    "method.response.header.Access-Control-Allow-Methods" = "'OPTIONS,DELETE,GET'"
     "method.response.header.Access-Control-Allow-Origin"  = "'*'"
   }
 
@@ -299,12 +201,11 @@ resource "aws_api_gateway_integration_response" "cors_options_integration_respon
   ]
 }
 
+### DEPLOY THE API ###
 resource "aws_api_gateway_deployment" "files" {
   rest_api_id = aws_api_gateway_rest_api.files.id
 
   depends_on = [
-    aws_api_gateway_integration.upload_lambda,
-    aws_api_gateway_integration.download_lambda,
     aws_api_gateway_integration.file_metadata_lambda,
     aws_api_gateway_integration.delete_lambda,
     aws_api_gateway_integration.cors_options_integration
@@ -316,34 +217,76 @@ resource "aws_api_gateway_deployment" "files" {
 
 }
 
+### STAGE THE API AND SET UP CLOUDWATCH LOGGING ###
+resource "aws_iam_role" "apilogs" {
+  name               = "api-gateway-logs-role"
+  assume_role_policy = file("${path.module}/api-gateway-policy.json")
+}
+
+resource "aws_iam_role_policy_attachment" "apilogs" {
+  role       = aws_iam_role.apilogs.name
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs"
+}
+
+resource "aws_api_gateway_account" "apilogs" {
+  cloudwatch_role_arn = aws_iam_role.apilogs.arn
+
+  depends_on = [aws_iam_role_policy_attachment.apilogs]
+}
+
+resource "aws_cloudwatch_log_group" "apilogs" {
+  name              = "/aws/apigateway/${aws_api_gateway_rest_api.files.id}/${var.environment}"
+  retention_in_days = 7
+
+  tags = {
+    environment = var.environment
+    Name        = "${var.project_name}-API-logs"
+  }
+}
 resource "aws_api_gateway_stage" "files" {
   deployment_id = aws_api_gateway_deployment.files.id
   rest_api_id   = aws_api_gateway_rest_api.files.id
   stage_name    = var.environment
+
+  depends_on = [aws_api_gateway_account.apilogs]
+
+  access_log_settings {
+    destination_arn = aws_cloudwatch_log_group.apilogs.arn
+    format = jsonencode({
+      requestId               = "$context.requestId"
+      requestTime             = "$context.requestTime"
+      protocol                = "$context.protocol"
+      httpMethod              = "$context.httpMethod"
+      resourcePath            = "$context.resourcePath"
+      status                  = "$context.status"
+      responseLength          = "$context.responseLength"
+      integrationErrorMessage = "$context.integrationErrorMessage"
+    })
+  }
 }
 
-resource "aws_lambda_permission" "upload_lambda" {
-  statement_id  = "AllowExecutionFromAPIGateway"
-  action        = "lambda:InvokeFunction"
-  function_name = var.upload_lambda_function_name
-  principal     = "apigateway.amazonaws.com"
-  source_arn    = "${aws_api_gateway_rest_api.files.execution_arn}/*/*/*"
+resource "aws_api_gateway_method_settings" "apilogs" {
+  rest_api_id = aws_api_gateway_rest_api.files.id
+  stage_name  = aws_api_gateway_stage.files.stage_name
+  method_path = "*/*"
+
+  settings {
+    logging_level      = "INFO"
+    data_trace_enabled = true
+    metrics_enabled    = true
+  }
+
+  depends_on = [aws_api_gateway_stage.files]
 }
 
-resource "aws_lambda_permission" "download_lambda" {
-  statement_id  = "AllowExecutionFromAPIGateway"
-  action        = "lambda:InvokeFunction"
-  function_name = var.download_lambda_function_name
-  principal     = "apigateway.amazonaws.com"
-  source_arn    = "${aws_api_gateway_rest_api.files.execution_arn}/*/*/*"
-}
-
+### GRANT API GATEWAY PERMISSION TO INVOKE LAMBDA FUNCTIONS ###
 resource "aws_lambda_permission" "file_metadata" {
   statement_id  = "AllowExecutionFromAPIGateway"
   action        = "lambda:InvokeFunction"
   function_name = var.file_metadata_lambda_function_name
   principal     = "apigateway.amazonaws.com"
-  source_arn    = "${aws_api_gateway_rest_api.files.execution_arn}/*/*/*"
+
+  source_arn = "${aws_api_gateway_rest_api.files.execution_arn}/*/*/*"
 }
 
 resource "aws_lambda_permission" "delete_lambda" {
@@ -351,5 +294,6 @@ resource "aws_lambda_permission" "delete_lambda" {
   action        = "lambda:InvokeFunction"
   function_name = var.delete_lambda_function_name
   principal     = "apigateway.amazonaws.com"
-  source_arn    = "${aws_api_gateway_rest_api.files.execution_arn}/*/*/*"
+
+  source_arn = "${aws_api_gateway_rest_api.files.execution_arn}/*/*/*"
 }
