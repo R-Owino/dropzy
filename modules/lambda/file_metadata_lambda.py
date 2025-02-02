@@ -1,4 +1,7 @@
-""" fetches a file metadata from the documents table """
+""" 
+fetches a file metadata from the documents table 
+scans the documents table to get a searched file
+"""
 
 import boto3
 import simplejson as json
@@ -15,9 +18,13 @@ def lambda_handler(event, context):
     try:
         logger.info(f"Received event: {json.dumps(event)}")
         
-        table = dynamodb.Table(TABLE_NAME)
+        # extract query parameters
+        query_params = event.get('queryStringParameters', {}) or {}
+        search_term = query_params.get('search', '')
+        limit = int(query_params.get('limit', 0))
 
         # scan the table for the files
+        table = dynamodb.Table(TABLE_NAME)
         response = table.scan()
         files = response.get("Items", [])
         logger.info(f"Files received: {len(files)}")
@@ -41,8 +48,16 @@ def lambda_handler(event, context):
             reverse=True
         )
 
-        # get only the 15 most recent
-        recent_files = sorted_files[:15]
+        # apply search filter if search term exists
+        if search_term:
+            sorted_files = [
+                file for file in sorted_files
+                if search_term.lower() in file["file_name"].lower()
+            ]
+
+        # apply specified limit
+        if limit > 0:
+            sorted_files = sorted_files[:limit]
 
         return {
             'statusCode': 200,
@@ -54,7 +69,7 @@ def lambda_handler(event, context):
             },
             'body': json.dumps({
                 'message': 'Success',
-                'files': recent_files
+                'files': sorted_files
             })
         }
     
