@@ -4,7 +4,8 @@
         {
             "Effect": "Allow",
             "Action": [
-                "dynamodb:PutItem"
+                "dynamodb:PutItem",
+                "dynamodb:UpdateItem"
             ],
             "Resource": [
                 "${dynamodb_documents_metadata_table_arn}"
