@@ -3,7 +3,6 @@ from flask import (Blueprint,
                    request,
                    redirect,
                    url_for,
-                   flash,
                    session
                 )
 from cognito import login_user
@@ -39,10 +38,8 @@ def login():
 
             logger.debug("Login successful, session created")
 
-            flash("Login Successful!", "success")
             return redirect(url_for("main.main"))
         else:
             logger.warning(f"Login failed: {result['message']}")
-            flash(result["message"], "danger")
     
     return render_template("login.html")
