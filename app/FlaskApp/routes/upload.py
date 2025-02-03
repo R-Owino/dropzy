@@ -1,17 +1,15 @@
 import os
 import boto3
 import logging
-import uuid
+from . import upload_bp
 from config import Config
 from flask_cors import cross_origin
-from flask import Blueprint, request, jsonify, session
+from flask import request, jsonify, session
 from werkzeug.utils import secure_filename
 from botocore.exceptions import NoCredentialsError, PartialCredentialsError
 
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
-
-upload_bp = Blueprint("upload", __name__)
 
 s3 = boto3.client("s3")
 BUCKET_NAME = Config.S3_BUCKET_NAME
@@ -38,11 +36,11 @@ def get_folder(extension):
     for folder, extensions in FILE_TYPE_MAP.items():
         if extension.lower() in extensions:
             return folder
-        return "other"
+    return "other"
 
 @upload_bp.route("/upload/presigned-url", methods=["POST"])
 @cross_origin(
-    origins="http://127.0.0.1:5000",
+    origins="*",
     allow_headers=["Content-Type", "Authorization"]
 )
 def generate_presigned_url():
@@ -73,7 +71,7 @@ def generate_presigned_url():
         folder = get_folder(file_extension)
         secure_name = secure_filename(file_name)
 
-        file_key = f"{folder}/{uuid.uuid4()}-{secure_name}"
+        file_key = f"{folder}/{secure_name}"
 
         # generate pre-signed URL for PUT
         presigned_url = s3.generate_presigned_url(
