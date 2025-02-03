@@ -34,8 +34,7 @@ def download_file():
             }), 400
 
         # exract the original file name
-        base_name = os.path.basename(file_key)
-        file_name = '-'.join(base_name.split('-')[5:])
+        file_name = file_key.split('/')[1]
         
         # check if the file exists in the bucket
         try:
