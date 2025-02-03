@@ -3,7 +3,6 @@ from flask import (Blueprint,
                    request,
                    redirect,
                    url_for,
-                   flash,
                    session)
 from cognito import register_user
 
@@ -19,10 +18,7 @@ def register():
 
         result = register_user(email, username, password)
         if result["Success"]:
-            flash("Registration Successful! Please verify your email.", "success")
             session["verification_email"] = email
             return redirect(url_for("confirm.confirm"))
-        else:
-            flash(result["message"], "danger")
     
     return render_template("register.html")
