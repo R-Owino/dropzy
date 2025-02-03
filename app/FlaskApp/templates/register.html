@@ -30,6 +30,7 @@
         }
         .input-group {
             margin-bottom: 20px;
+            position: relative;
         }
         .input-group label {
             display: block;
@@ -44,6 +45,74 @@
             color: #f8f8f2;
             border-radius: 5px;
             box-sizing: border-box;
+            transition: border-color 0.3s ease;
+        }
+        .email-validation-feedback {
+            position: absolute;
+            left: 0;
+            right: 0;
+            margin-top: 5px;
+            font-size: 0.85em;
+            opacity: 0;
+            transform: translateY(-10px);
+            transition: all 0.3s ease;
+        }
+
+        .email-validation-feedback.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .validation-item {
+            color: #f8f8f2;
+            margin: 3px 0;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .validation-item:before {
+            content: "•";
+            color: #5681d0;
+        }
+
+        .validation-item.valid {
+            color: #50fa7b;
+        }
+
+        .validation-item.valid:before {
+            content: "✓";
+            color: #50fa7b;
+        }
+
+        .validation-item.invalid {
+            color: #ff5555;
+        }
+
+        .validation-item.invalid:before {
+            content: "×";
+            color: #ff5555;
+        }
+
+        .input-group input.valid-email {
+            border-color: #50fa7b;
+        }
+
+        .input-group input.invalid-email {
+            border-color: #ff5555;
+        }
+        .email-helper {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #5681d0;
+            cursor: help;
+            transition: color 0.3s ease;
+        }
+
+        .email-helper:hover {
+            color: #f8f8f2;
         }
         .signup-button {
             width: 100%;
@@ -70,6 +139,27 @@
         .login-link:hover {
             color: #4070c0;
         }
+        .password-requirements {
+            display: none;
+            margin-top: 10px;
+            background-color: #212750;
+            padding: 12px;
+            border: 1px solid #5681d0;
+            border-radius: 5px;
+            font-size: 0.9em;
+        }
+        .requirements-list {
+            list-style: none;
+            padding-left: 0;
+            margin: 8px 0 0 0;
+        }
+        .requirements-list li {
+            margin: 6px 0;
+            transition: color 0.3s ease;
+        }
+        .requirement-met {
+            color: #50fa7b;
+        }
     </style>
 </head>
 <body>
@@ -79,17 +169,39 @@
         <form action="{{ url_for('register.register') }}" method="post">
             <div class="input-group">
                 <label for="email">Email</label>
-                <input type="email" id="email" name="email" required>
+                <input 
+                    type="email" 
+                    id="email" 
+                    name="email" 
+                    placeholder="You@email.com" 
+                    required
+                >
+                <div class="email-validation-feedback">
+                    <div class="validation-item" data-check="format">Contains @ and a domain</div>
+                    <div class="validation-item" data-check="domain">Valid domain extension</div>
+                    <div class="validation-item" data-check="length">Between 5 and 50 characters</div>
+                    <div class="validation-item" data-check="special">No invalid special characters</div>
+                </div>
             </div>
 
             <div class="input-group">
                 <label for="username">Username</label>
-                <input type="text" id="username" name="username" required>
+                <input type="username" id="username" name="username" placeholder="Your Username" required>
             </div>
             
             <div class="input-group">
                 <label for="password">Password</label>
-                <input type="password" id="password" name="password" required>
+                <input type="password" id="password" name="password" placeholder="Your Password" required>
+                <div id="password-requirements" class="password-requirements">
+                    <div>Password must contain:</div>
+                    <ul class="requirements-list">
+                        <li id="length-check">✗ At least 8 characters</li>
+                        <li id="uppercase-check">✗ At least one uppercase letter</li>
+                        <li id="lowercase-check">✗ At least one lowercase letter</li>
+                        <li id="number-check">✗ At least one number</li>
+                        <li id="special-check">✗ At least one special character</li>
+                    </ul>
+                </div>
             </div>
             
             <button type="submit" class="signup-button">Sign Up</button>
@@ -99,5 +211,117 @@
             Already have an account? <a href="{{ url_for('login.login') }}" class="login-link">Log In</a>
         </div>
     </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const emailInput = document.getElementById('email');
+            const validationFeedback = document.querySelector('.email-validation-feedback');
+
+            // email validation patterns
+            const emailPatterns = {
+                format: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+                domain: /\.(com|net|org|edu|gov|mil|info|io|co|[a-z]{2})$/i,
+                length: (email) => email.length >= 5 && email.length <= 50,
+                special: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/
+            };
+
+            function validateEmail(email) {
+                const results = {
+                    format: emailPatterns.format.test(email),
+                    domain: emailPatterns.domain.test(email),
+                    length: emailPatterns.length(email),
+                    special: emailPatterns.special.test(email)
+                };
+
+                return {
+                    isValid: Object.values(results).every(Boolean),
+                    results
+                };
+            }
+
+            function updateValidationUI(validationResults) {
+                Object.entries(validationResults.results).forEach(([check, isValid]) => {
+                    const element = document.querySelector(`[data-check="${check}"]`);
+                    element.classList.remove('valid', 'invalid');
+                    element.classList.add(isValid ? 'valid' : 'invalid');
+                });
+
+                emailInput.classList.remove('valid-email', 'invalid-email');
+                if (validationResults.isValid) {
+                    emailInput.classList.add('valid-email');
+                } else if (emailInput.value) {
+                    emailInput.classList.add('invalid-email');
+                }
+            }
+
+            // Event listeners
+            emailInput.addEventListener('focus', () => {
+                validationFeedback.classList.add('visible');
+            });
+
+            emailInput.addEventListener('input', (e) => {
+                const validationResults = validateEmail(e.target.value);
+                updateValidationUI(validationResults);
+            });
+
+            // Form submission validation
+            document.querySelector('form').addEventListener('submit', (e) => {
+                const validationResults = validateEmail(emailInput.value);
+                if (!validationResults.isValid) {
+                    e.preventDefault();
+                    validationFeedback.classList.add('visible');
+                    emailInput.focus();
+                }
+            });
+        });
+
+        const passwordInput = document.getElementById('password');
+        const requirementsDiv = document.getElementById('password-requirements');
+
+        passwordInput.addEventListener('focus', () => {
+            requirementsDiv.style.display = 'block';
+        });
+
+        // check password requirements as the user types
+        passwordInput.addEventListener('input', () => {
+            const password = passwordInput.value;
+            
+            const requirements = {
+                'length-check': password.length >= 8,
+                'uppercase-check': /[A-Z]/.test(password),
+                'lowercase-check': /[a-z]/.test(password),
+                'number-check': /\d/.test(password),
+                'special-check': /[!@#$%^&*(),.?":{}|<>]/.test(password)
+            };
+            
+            for (const [id, passes] of Object.entries(requirements)) {
+                const element = document.getElementById(id);
+                if (passes) {
+                    element.innerHTML = '✓ ' + element.innerHTML.slice(2);
+                    element.classList.add('requirement-met');
+                } else {
+                    element.innerHTML = '✗ ' + element.innerHTML.slice(2);
+                    element.classList.remove('requirement-met');
+                }
+            }
+        });
+
+        // validate all requirements before form submission
+        document.querySelector('form').addEventListener('submit', (e) => {
+            const password = passwordInput.value;
+            const allRequirementsMet = 
+                password.length >= 8 &&
+                /[A-Z]/.test(password) &&
+                /[a-z]/.test(password) &&
+                /\d/.test(password) &&
+                /[!@#$%^&*(),.?":{}|<>]/.test(password);
+
+            if (!allRequirementsMet) {
+                e.preventDefault();
+                requirementsDiv.style.display = 'block';
+                alert('Please ensure all password requirements are met.');
+            }
+        });
+    </script>
 </body>
 </html>
