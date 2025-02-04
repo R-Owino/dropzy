@@ -39,8 +39,10 @@ module "api_gateway" {
   project_name                       = var.project_name
   environment                        = var.environment
   userpool_arn                       = module.cognito.userpool_arn
-  file_metadata_arn                  = module.lambda.file_metadata_arn
+  file_metadata_arn                  = module.lambda.file_metadata_function_arn
   delete_lambda_arn                  = module.lambda.delete_function_arn
+  file_metadata_invoke_arn           = module.lambda.file_metadata_invoke_arn
+  delete_lambda_invoke_arn           = module.lambda.delete_lambda_invoke_arn
   file_metadata_lambda_function_name = module.lambda.file_metadata_function_name
   delete_lambda_function_name        = module.lambda.delete_lambda_function_name
 }
@@ -48,8 +50,8 @@ module "api_gateway" {
 module "s3" {
   source = "./modules/s3"
 
-  project_name = var.project_name
-  environment  = var.environment
-  upload_lambda_function_name        = module.lambda.upload_function_name
-  upload_lambda_arn                  = module.lambda.upload_function_arn
+  project_name                = var.project_name
+  environment                 = var.environment
+  upload_lambda_function_name = module.lambda.upload_function_name
+  upload_lambda_arn           = module.lambda.upload_function_arn
 }
