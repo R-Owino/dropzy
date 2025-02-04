@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sign Up</title>
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='css/register.css') }}"
+    />
+  </head>
+  <body>
+    <div class="signup-container">
+      <h1 class="signup-header">Create Your Account</h1>
+
+      <form action="{{ url_for('register.register') }}" method="post">
+        <div class="input-group">
+          <label for="email">Email</label>
+          <input
+            type="email"
+            id="email"
+            name="email"
+            placeholder="You@email.com"
+            required
+          />
+          <div class="email-validation-feedback">
+            <div class="validation-item" data-check="format">
+              Contains @ and a domain
+            </div>
+            <div class="validation-item" data-check="domain">
+              Valid domain extension
+            </div>
+            <div class="validation-item" data-check="length">
+              Between 5 and 50 characters
+            </div>
+            <div class="validation-item" data-check="special">
+              No invalid special characters
+            </div>
+          </div>
+        </div>
+
+        <div class="input-group">
+          <label for="username">Username</label>
+          <input
+            type="username"
+            id="username"
+            name="username"
+            placeholder="Your Username"
+            required
+          />
+        </div>
+
+        <div class="input-group">
+          <label for="password">Password</label>
+          <input
+            type="password"
+            id="password"
+            name="password"
+            placeholder="Your Password"
+            required
+          />
+          <div id="password-requirements" class="password-requirements">
+            <div>Password must contain:</div>
+            <ul class="requirements-list">
+              <li id="length-check">✗ At least 8 characters</li>
+              <li id="uppercase-check">✗ At least one uppercase letter</li>
+              <li id="lowercase-check">✗ At least one lowercase letter</li>
+              <li id="number-check">✗ At least one number</li>
+              <li id="special-check">✗ At least one special character</li>
+            </ul>
+          </div>
+        </div>
+
+        <button type="submit" class="signup-button">Sign Up</button>
+      </form>
+
+      <div class="login-section">
+        Already have an account?
+        <a href="{{ url_for('login.login') }}" class="login-link">Log In</a>
+      </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/register.js') }}"></script>
+  </body>
+</html>

@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dashboard</title>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='css/main.css') }}"
+    />
+  </head>
+  <body>
+    <div class="sidebar">
+      <div class="sidebar-toggle">
+        <i data-lucide="chevron-right" stroke="#5681d0"></i>
+      </div>
+      <div class="sidebar-content">
+        <!--Home link -->
+        <a href="/" class="home-link">
+          <i data-lucide="home"></i>
+          <span>Home</span>
+        </a>
+        <div class="user-profile-container">
+          <div class="user-profile-details">
+            <div class="user-email-container">
+              <div class="user-email">{{ username }}</div>
+              <i
+                class="down-arrow"
+                data-lucide="chevron-down"
+                stroke="#5681d0"
+              ></i>
+            </div>
+            <div class="logout-section">
+              <form
+                action="{{ url_for('logout.logout') }}"
+                method="post"
+                class="logout-form"
+              >
+                <button type="submit" class="logout-btn">Logout</button>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="dashboard-container">
+      <div class="header">
+        <h1 class="welcome-message">Files on Cloud</h1>
+        <div class="header-divider"></div>
+      </div>
+
+      <div class="upload-section">
+        <div class="upload-helper-text">
+          Upload files to the shared cloud storage. Supported file types include
+          documents, images, spreadsheets, and more. Maximum file size is 2.5GB.
+        </div>
+        <input type="file" id="file-upload" class="upload-input" />
+        <label for="file-upload" class="upload-label">
+          <i data-lucide="upload" stroke="#ffffff"></i>
+          Choose File
+        </label>
+        <div class="file-info" style="display: none">
+          Selected file: <span id="selected-filename"></span>
+          <button id="upload-button" class="upload-button">Start Upload</button>
+        </div>
+        <div class="progress-container" style="display: none">
+          <div class="progress-bar" id="upload-progress"></div>
+        </div>
+        <div id="upload-status" class="upload-status"></div>
+      </div>
+
+      <div class="recent-files">
+        <div class="recent-files-header">
+          <h2 class="recent-files-title">Recent Files</h2>
+          <div class="search-container">
+            <input
+              type="text"
+              class="search-input"
+              placeholder="Search files..."
+              aria-label="Search files"
+            />
+          </div>
+        </div>
+        <div class="files-grid" id="files-container">
+          <!-- Files will be dynamically populated here -->
+        </div>
+      </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+  </body>
+</html>
