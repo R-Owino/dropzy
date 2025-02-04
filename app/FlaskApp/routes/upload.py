@@ -22,7 +22,7 @@ FILE_TYPE_MAP = {
     "audio-files": ["mp3", "wav", "aac"],
     "spreadsheet-files": ["xlsx", "csv"],
     "archive-files": ["zip", "rar", "7z", "tar", "gz"],
-    "code-files": ["sh", "js", "py", "html", "css", "json", "xml"],
+    "code-files": ["sh", "js", "py", "html", "css", "json", "xml", "tf"],
     "presentation-files": ["ppt", "pptx"],
     "app-files": ["apk", "exe", "dll"],
     "disc-files": ["iso"],
