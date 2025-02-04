@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Home</title>
+    <script
+      src="https://unpkg.com/@dotlottie/player-component@2.7.12/dist/dotlottie-player.mjs"
+      type="module"
+    ></script>
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='css/index.css') }}"
+    />
+  </head>
+  <body>
+    <div class="header">
+      <h1>Files on Cloud</h1>
+      <p>Securely share and access documents</p>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="two-column">
+      <div class="column">
+        <h2>About the App</h2>
+        <p>
+          Files on Cloud is a secure and user-friendly platform that allows you
+          to store, share, and access your important documents from anywhere in
+          the world. With advanced security features and seamless integration,
+          managing your files has never been easier.
+        </p>
+        <div class="centered-button">
+          <a href="{{ url_for('login.login') }}" class="get-started"
+            >Get Started</a
+          >
+        </div>
+      </div>
+
+      <div class="column">
+        <div class="lottie-container">
+          <dotlottie-player
+            src="https://lottie.host/466bad7b-5a7d-4df5-a873-1640da15b399/OYDoHOKAHN.lottie"
+            background="transparent"
+            speed="1"
+            style="width: 300px; height: 300px"
+            loop
+            autoplay
+          >
+          </dotlottie-player>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
