@@ -2,7 +2,7 @@
 import boto3
 import logging
 from . import upload_bp
-from config import Config
+from v1.config import Config
 from flask_cors import cross_origin
 from flask import request, jsonify, session
 from werkzeug.utils import secure_filename
@@ -10,9 +10,6 @@ from botocore.exceptions import NoCredentialsError, PartialCredentialsError
 
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
-
-dynamodb = boto3.resource("dynamodb")
-TABLE_NAME = Config.DYNAMODB_TABLE_NAME
 
 
 @upload_bp.route("/upload/check-file-exists", methods=["POST"])
@@ -22,7 +19,15 @@ TABLE_NAME = Config.DYNAMODB_TABLE_NAME
 )
 def check_file_exists():
     """
-    check if a file with the same name already exists in the dynamodb table
+    check if a file with the same name already exists in the DynamoDB table
+
+    Returns:
+        JSON response:
+            - 401 Unauthorised: if user is not logged in
+            - 400 Bad Request: if fileName is missing in the request
+            - 200 OK: JSON containing {'exists': True/False} depending on
+                    whether the file exists
+            - 500 Internal Server Error: If an AWS credentials error occurs
     """
 
     if "username" not in session:
@@ -35,6 +40,10 @@ def check_file_exists():
         return jsonify({"error": "Invalid request"}), 400
 
     try:
+        # initialize DynamoDB resource
+        dynamodb = boto3.resource("dynamodb")
+        TABLE_NAME = Config.DYNAMODB_TABLE_NAME
+
         secure_name = secure_filename(file_name)
 
         # query dynamodb table for files with the same name
