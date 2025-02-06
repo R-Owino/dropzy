@@ -8,14 +8,27 @@ from flask import (Blueprint,
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
+# Define the Blueprint for the main route
 main_bp = Blueprint("main", __name__)
 
 
 @main_bp.route("/main", methods=["GET", "POST"])
 def main():
-    """defines the main page route"""
-    logger.debug("Current session contents: %s", dict(session))
+    """
+    Handles rendering of the main page
 
+    GET:
+        - Display main page for authenticated users
+    POST:
+        - Retrieve authenticated user details from session
+        - Handle form submissions from main page
+
+    Returns:
+        JSON response:
+            - 200 OK: render main.html with username
+            - 302 Redirect: login page
+    """
+    logger.debug("Current session contents: %s", dict(session))
     logger.debug("Session logged_in: %s", session.get("logged_in"))
     logger.debug("Session username: %s", session.get("username"))
     logger.debug("id_token: %s", session.get("id_token"))
