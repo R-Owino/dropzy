@@ -5,14 +5,31 @@ from flask import (Blueprint,
                    url_for,
                    session
                    )
-from cognito import register_user
+from v1.cognito import register_user
 
+# Define Blueprint for register user route
 register_bp = Blueprint("register", __name__)
 
 
 @register_bp.route("/register", methods=["GET", "POST"])
 def register():
-    """defines the register route"""
+    """
+    Handle user registration
+
+    GET:
+        - Render the registration page
+    POST:
+        - Retrieve email, username and password from form data
+        - Call Amazon Cognito to register the user
+        - If successful, store the email in session and
+            redirect to confirmation page
+        - If unsuccessful, re-render the registration page
+
+    Returns:
+        JSON response:
+            - 200 OK: render the registration page
+            - 302 Redirect: confirmation page upon successful registration
+    """
     if request.method == "POST":
         email = request.form.get("email")
         username = request.form.get("username")
