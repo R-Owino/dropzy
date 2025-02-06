@@ -1,25 +1,25 @@
 from flask import Flask, render_template, session
-from config import Config
+from v1.config import Config
 from flask_session import Session
 from datetime import timedelta
 import logging
 
-from routes.landing import landing_bp
-from routes.login import login_bp
-from routes.register import register_bp
-from routes.confirm import confirm_bp
-from routes.resend_code import resend_bp
-from routes.main import main_bp
-from routes import upload_bp
-from routes.download import download_bp
-from routes import file_metadata_bp
-from routes.delete import delete_bp
-from routes.logout import logout_bp
+from v1.routes.landing import landing_bp
+from v1.routes.login import login_bp
+from v1.routes.register import register_bp
+from v1.routes.confirm import confirm_bp
+from v1.routes.resend_code import resend_bp
+from v1.routes.main import main_bp
+from v1.routes import upload_bp
+from v1.routes.download import download_bp
+from v1.routes import file_metadata_bp
+from v1.routes.delete import delete_bp
+from v1.routes.logout import logout_bp
 
-import routes.upload
-import routes.check_file
-import routes.file_metadata
-import routes.search_file
+import v1.routes.upload
+import v1.routes.check_file
+import v1.routes.file_metadata
+import v1.routes.search_file
 
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
