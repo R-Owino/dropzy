@@ -5,18 +5,41 @@ from flask import (Blueprint,
                    url_for,
                    session,
                    jsonify)
-from cognito import confirm_user
+from v1.cognito import confirm_user
 import logging
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
+# Define Blueprint for confirmation routes
 confirm_bp = Blueprint("confirm", __name__)
 
 
 @confirm_bp.route("/confirm", methods=["GET", "POST"])
 def confirm():
-    """defines a route for user email verification"""
+    """
+    Handle user email verification via a confirmation code
+
+    GET:
+        - If 'verification_email' is missing from session,
+            redirect to register page
+        - Otherwise, render the confirmation template
+
+    POST:
+        - Retrieve verification code from form input
+        - Call Amazon Cognito to confirm the user's email
+        - If successful or already confirmed, redirect to login page
+        - If request header `Accept: application/json`, return a
+            JSON response instead of redirecting
+        - If failed, return an error message in JSON format
+            or re-render the confirmation page
+
+    Returns:
+        JSON response:
+            - 302 Redirect: login page upon successful verification
+            - 200 OK: JSON response if `Accept: application/json` is set
+            - 200 OK: rendered confirmation page on failure
+    """
 
     email = session.get("verification_email")
     if not email:
@@ -38,19 +61,18 @@ def confirm():
 
             if request.headers.get('Accept') == 'application/json':
                 return jsonify({
-                    "success": True,
+                    "success": result.get("Success", True),
                     "redirect_url": url_for("login.login")
-                }), 200
+                })
             else:
-                return redirect(url_for("login.login")), 302
+                return redirect(url_for("login.login"))
         else:
             logger.warning(
                 f"Verification failed for {email}: {result.get('message')}"
             )
             return jsonify({
                 "success": False,
-                "message": result.get(
-                    "message", "Verification failed. Please try again.")
+                "message": result.get("message")
             })
 
     return render_template("confirm.html")
