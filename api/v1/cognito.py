@@ -1,17 +1,34 @@
 import boto3
 import logging
 from botocore.exceptions import ClientError
-from config import Config
+from v1.config import Config
+from typing import Dict
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
+# initialize cognito client
 cognito_client = boto3.client("cognito-idp",
                               region_name=Config.AWS_REGION)
 
 
-def register_user(email, username, password):
-    """adds a user to cognito userpool"""
+def register_user(
+    email: str,
+    username: str,
+    password: str
+) -> Dict[str, bool | str]:
+    """
+    Registers a new user in the AWS Cognito user pool
+
+    Args:
+        email (str): user's email address
+        username (str): preffered username for the user
+        password (str): password for the user account
+
+    Returns:
+        dict: dictionary with 'Success' (bool) and
+                optional 'message' (str) if an error occurs
+    """
     try:
         cognito_client.sign_up(
             ClientId=Config.AWS_COGNITO_CLIENT_ID,
@@ -30,8 +47,19 @@ def register_user(email, username, password):
         }
 
 
-def confirm_user(email, code):
-    """verifies a user's email address"""
+def confirm_user(email: str, code: str) -> Dict[str, bool | str]:
+    """
+    Confirms a user's email address using the verification code
+    from AWS Cognito
+
+    Args:
+        email (str): user's email address
+        code (str): confirmation code sent to the user's email
+
+    Returns:
+        dict: dictionary with 'Success' (bool) and
+                optional 'message' (str) if an error occurs
+    """
     try:
         cognito_client.confirm_sign_up(
             ClientId=Config.AWS_COGNITO_CLIENT_ID,
@@ -46,8 +74,17 @@ def confirm_user(email, code):
         return {"Success": False, "message": error_message}
 
 
-def resend_verification_code(email):
-    """resends the verification code upon request"""
+def resend_verification_code(email: str) -> Dict[str, bool | str]:
+    """
+    Resends the verification code to a user who has not confirmed their email
+
+    Args:
+        email (str): user's email address
+
+    Returns:
+        dict: dictionary with 'Success' (bool) and
+                optional 'message' (str) if an error occurs
+    """
     try:
         cognito_client.resend_confirmation_code(
             ClientId=Config.AWS_COGNITO_CLIENT_ID,
@@ -58,8 +95,21 @@ def resend_verification_code(email):
         return {"Success": False, "message": e.response["Error"]["Message"]}
 
 
-def login_user(email, password):
-    """logs in a user"""
+def login_user(
+    email: str,
+    password: str
+) -> Dict[str, bool | str | Dict[str, str]]:
+    """
+    Authenticates a user and retrieves authentication tokens from AWS Cognito
+
+    Args:
+        email (str): user's email address
+        password (str): user's password
+
+    Returns:
+        dict: dictionary with 'Success' (bool) and
+                either 'tokens' (dict) or 'message' (str) if an error occurs
+    """
     try:
         response = cognito_client.initiate_auth(
             AuthFlow="USER_PASSWORD_AUTH",
