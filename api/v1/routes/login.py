@@ -5,19 +5,38 @@ from flask import (Blueprint,
                    url_for,
                    session
                    )
-from cognito import login_user
+from v1.cognito import login_user
 import logging
 
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
+# Define Blueprint for login route
 login_bp = Blueprint("login", __name__)
 
 
 @login_bp.route("/login", methods=["GET", "POST"])
 def login():
-    """defines the login route"""
-    logger.debug("Login route accessed")
+    """
+    Handle user login
+
+    GET:
+        - Render the login page
+
+    POST:
+        - Retrieve username and password from form data
+        - Call Cognito to authenticate the user
+        - If authentication is successful:
+            - store user session details including tokens
+            - redirect to the main page
+        - If authentication fails:
+            - re-render the login page
+
+    Returns:
+        JSON response:
+            - 200 OK: login page is rendered
+            - 302 Redirect: main page upon successful login
+    """
 
     if request.method == "POST":
         username = request.form.get("username")
