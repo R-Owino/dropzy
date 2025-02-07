@@ -15,18 +15,20 @@ main_bp = Blueprint("main", __name__)
 @main_bp.route("/main", methods=["GET", "POST"])
 def main():
     """
-    Handles rendering of the main page
+    Handles requests to the main page
 
     GET:
+        - Check if the user is logged in
         - Display main page for authenticated users
+        - Otherwise, redirects to the login page
     POST:
         - Retrieve authenticated user details from session
         - Handle form submissions from main page
 
     Returns:
         JSON response:
-            - 200 OK: render main.html with username
-            - 302 Redirect: login page
+            - 200 OK: render main page content for authenticated users
+            - 302 Redirect: login page if user is unauthenticated
     """
     logger.debug("Current session contents: %s", dict(session))
     logger.debug("Session logged_in: %s", session.get("logged_in"))
