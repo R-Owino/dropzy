@@ -1,7 +1,7 @@
-import os
+
 import boto3
 import logging
-from config import Config
+from v1.config import Config
 from urllib.parse import unquote_plus
 from botocore.exceptions import ClientError
 from flask import Blueprint, jsonify, request, session
@@ -9,23 +9,38 @@ from flask import Blueprint, jsonify, request, session
 logger = logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-s3 = boto3.client("s3")
-BUCKET_NAME = Config.S3_BUCKET_NAME
-
+# Define Blueprint for file upload route
 download_bp = Blueprint("download", __name__)
 
 
 @download_bp.route("/download", methods=["GET"])
 def download_file():
     """
-    Generates a pre-signed URL for downloading a file from S3
+    Generate a pre-signed URL for downloading a file from S3
+
+    GET:
+        - Requires user authentication
+        - Requires a `file_key` query parameter specifying the file to download
+        - Calls S3 to verify the file exists
+            before generating the pre-signed URL
+        - Handles missing files and errors gracefully
+
+    Returns:
+        JSON response:
+            - 401 Unauthorised: user not logged in
+            - 400 Bad Request: `file_key` is missing
+            - 200 OK: generating pre-signed URL successful
+            - 404 Not Found: file does not exist in S3
+            - 500 Internal Server Error: S3 errors and unexpected failures
     """
-    logger.info("Download route accessed")
 
     if "username" not in session:
         return jsonify({"error": "Unauthorized"}), 401
 
     try:
+        s3 = boto3.client("s3")
+        BUCKET_NAME = Config.S3_BUCKET_NAME
+
         file_key = unquote_plus(request.args.get("file_key", ""))
 
         if not file_key:
