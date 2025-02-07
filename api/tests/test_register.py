@@ -1,5 +1,6 @@
 #!/usr/bin/python3
 
+from flask.testing import FlaskClient
 import pytest
 from unittest.mock import patch
 from v1.app import app
@@ -13,7 +14,7 @@ def client():
         yield client
 
 
-def test_register_get(client):
+def test_register_get(client: FlaskClient):
     """Test GET /register renders the register page"""
     response = client.get("/register")
     assert response.status_code == 200
@@ -21,7 +22,7 @@ def test_register_get(client):
 
 
 @patch("v1.routes.register.register_user", return_value={"Success": True})
-def test_register_post_success(mock_register_user, client):
+def test_register_post_success(mock_register_user, client: FlaskClient):
     """Test successful user registration redirects to confirm page"""
     response = client.post("/register", data={
         "email": "test@example.com",
@@ -36,7 +37,7 @@ def test_register_post_success(mock_register_user, client):
 
 
 @patch("v1.routes.register.register_user", return_value={"Success": False})
-def test_register_post_failure(mock_register_user, client):
+def test_register_post_failure(mock_register_user, client: FlaskClient):
     """Test failed user registration re-renders register page."""
     response = client.post("/register", data={
         "email": "test@example.com",
