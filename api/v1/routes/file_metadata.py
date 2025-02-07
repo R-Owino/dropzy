@@ -1,6 +1,6 @@
 import requests
 from . import file_metadata_bp
-from config import Config
+from v1.config import Config
 from flask import jsonify, session
 
 AWS_API_GATEWAY_FETCH_METADATA_URL = Config.AWS_API_GATEWAY_FETCH_METADATA_URL
@@ -10,7 +10,18 @@ AWS_API_GATEWAY_FETCH_METADATA_URL = Config.AWS_API_GATEWAY_FETCH_METADATA_URL
 def file_metadata():
     """
     Fetch recent file metadata from documents DynamoDB table
-    via API gateway with optional limit
+    via API gateway with a limit
+
+    GET:
+        - Requires user to be logged in
+        - Calls Amazon API gateway to retrieve recent file metadata
+        - Requests metadata with a default limit of 15 files
+        - Handles network errors and API failures gracefully
+
+    Returns:
+        - 401 Unauthorized: user not logged in
+        - 200 OK: file metadata retrieval successful
+        - 500 Internal Server Error: API or network failures
     """
     if "username" not in session:
         return jsonify({"error": "Unauthorized"}), 401
