@@ -1,0 +1,19 @@
+{
+	"Version": "2012-10-17",
+	"Statement": [
+		{
+			"Effect": "Allow",
+			"Action": [
+				"dynamodb:Scan",
+				"dynamodb:DeleteItem",
+				"s3:DeleteObject"
+			],
+			"Resource": [
+				"${dynamodb_documents_metadata_table_arn}",
+				"${s3_bucket_arn}",
+				"${s3_bucket_arn}/*",
+				"${s3_bucket_arn}/*/*"
+			]
+		}
+    ]
+}
