@@ -1,6 +1,7 @@
-from flask import Flask, render_template, session
+from flask import Flask, render_template, session, Blueprint
 from v1.config import Config
 from flask_session import Session
+from flask_cors import CORS
 from datetime import timedelta
 import logging
 
@@ -31,19 +32,26 @@ app.config["SESSION_PERMANENT"] = False
 app.config["SESSION_TYPE"] = "filesystem"
 app.config["PERMANENT_SESSION_LIFETIME"] = timedelta(minutes=30)
 
+# base API blueprint
+api_bp = Blueprint('api', __name__, url_prefix='/api/v1')
+CORS(api_bp, 
+     origins="*",
+     allow_headers=["Content-Type", "Authorization"])
+
 Session(app)
 
-app.register_blueprint(landing_bp)
-app.register_blueprint(login_bp)
-app.register_blueprint(register_bp)
-app.register_blueprint(confirm_bp)
-app.register_blueprint(resend_bp)
-app.register_blueprint(main_bp)
-app.register_blueprint(upload_bp)
-app.register_blueprint(download_bp)
-app.register_blueprint(file_metadata_bp)
-app.register_blueprint(delete_bp)
-app.register_blueprint(logout_bp)
+api_bp.register_blueprint(landing_bp)
+api_bp.register_blueprint(login_bp)
+api_bp.register_blueprint(register_bp)
+api_bp.register_blueprint(confirm_bp)
+api_bp.register_blueprint(resend_bp)
+api_bp.register_blueprint(main_bp)
+api_bp.register_blueprint(upload_bp)
+api_bp.register_blueprint(download_bp)
+api_bp.register_blueprint(file_metadata_bp)
+api_bp.register_blueprint(delete_bp)
+api_bp.register_blueprint(logout_bp)
+app.register_blueprint(api_bp)
 
 
 # Error handler
