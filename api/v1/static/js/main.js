@@ -1,6 +1,9 @@
 // Initialize Lucide Icons
 lucide.createIcons();
 
+// API Base URL
+const API_BASE_URL = '/api/v1';
+
 // Sidebar toggle functionality
 document.addEventListener('DOMContentLoaded', () => {
     const sidebar = document.querySelector('.sidebar');
@@ -75,7 +78,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         try {
             // check if the file exists
-            const checkResponse = await fetch('/upload/check-file-exists', {
+            const checkResponse = await fetch(`${API_BASE_URL}/upload/check-file-exists`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -124,7 +127,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 }
             }
             // request a pre-signed url
-            const response = await fetch('/upload/presigned-url', {
+            const response = await fetch(`${API_BASE_URL}/upload/presigned-url`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -207,7 +210,7 @@ async function initializeSearchAndDisplayFunctionality() {
     // fetch and display recent files
     async function fetchRecentFiles() {
         try {
-            const response = await fetch('/file-metadata');
+            const response = await fetch(`${API_BASE_URL}/file-metadata`);
             if (!response.ok) {
                 throw new Error('Failed to fetch files');
             }
@@ -264,7 +267,7 @@ async function initializeSearchAndDisplayFunctionality() {
 
         isSearching = true;
         try {
-            const response = await fetch(`/search-files?search=${encodeURIComponent(searchTerm)}`);
+            const response = await fetch(`${API_BASE_URL}/search-files?search=${encodeURIComponent(searchTerm)}`);
             if (!response.ok) {
                 throw new Error('Search failed');
             }
@@ -440,7 +443,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         try {
             const fileKey = downloadIcon.dataset.fileKey;
-            const response = await fetch(`/download?file_key=${encodeURIComponent(fileKey)}`);
+            const response = await fetch(`${API_BASE_URL}/download?file_key=${encodeURIComponent(fileKey)}`);
             
             if (!response.ok) {
                 throw new Error('Failed to generate download URL');
@@ -500,7 +503,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 return;
             }
 
-            const response = await fetch(`/delete?file_key=${encodeURIComponent(fileKey)}`, {
+            const response = await fetch(`${API_BASE_URL}/delete?file_key=${encodeURIComponent(fileKey)}`, {
                 method: 'DELETE',
             });
 
