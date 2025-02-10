@@ -58,7 +58,7 @@ def login():
 
             logger.debug("Login successful, session created")
 
-            return redirect(url_for("main.main"))
+            return redirect(url_for("api.main.main"))
         else:
             logger.warning(f"Login failed: {result['message']}")
 
