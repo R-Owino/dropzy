@@ -37,7 +37,7 @@ def main():
 
     if not session.get("logged_in"):
         logger.warning("Unauthorized access attempt to main page")
-        return redirect(url_for("login.login"))
+        return redirect(url_for("api.login.login"))
 
     return render_template("main.html",
                            username=session["username"])
