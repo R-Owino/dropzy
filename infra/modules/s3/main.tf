@@ -1,7 +1,13 @@
 /* S3 resources */
 
+resource "random_string" "bucket_name_suffix" {
+  length  = 6
+  special = false
+  upper   = false
+}
+
 resource "aws_s3_bucket" "files" {
-  bucket = "${var.project_name}-files"
+  bucket = "${var.project_name}-files-${random_string.bucket_name_suffix.result}"
 
   force_destroy = true
 
