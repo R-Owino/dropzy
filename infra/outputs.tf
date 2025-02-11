@@ -1,5 +1,10 @@
 # defines outputs that will be displayed after terraform apply
 
+output "aws_region" {
+  description = "Region where the resources have been provisioned"
+  value       = var.aws_region
+}
+
 output "cognito_user_pool_id" {
   description = "ID of the Cognito user pool"
   value       = module.cognito.userpool_id
@@ -23,4 +28,14 @@ output "api_gateway_fetch_metadata_url" {
 output "api_gateway_delete_url" {
   description = "Invoke URL for deleting files"
   value       = module.api_gateway.delete_url
+}
+
+output "s3_bucket_name" {
+  description = "Name of the bucket where files are stored"
+  value       = module.s3.bucket_name
+}
+
+output "dynamodb_table_name" {
+  description = "Name of DynamoDB table holding the files metadata"
+  value       = module.dynamodb.documents_metadata_table_name
 }
