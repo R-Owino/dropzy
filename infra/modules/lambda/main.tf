@@ -8,8 +8,8 @@ data "archive_file" "userdata_lambda_zip_file" {
 
 data "archive_file" "upload_lambda_zip_file" {
   type        = "zip"
-  source_file = "${path.module}/upload_lambda.py"
-  output_path = "${path.module}/upload_lambda.zip"
+  source_file = "${path.module}/upload_file_metadata_lambda.py"
+  output_path = "${path.module}/upload_file_metadata_lambda.zip"
 }
 
 data "archive_file" "fetch_file_metadata_zip_file" {
@@ -42,7 +42,7 @@ resource "aws_lambda_function" "userdata" {
 }
 
 resource "aws_lambda_function" "upload" {
-  filename      = "${path.module}/upload_lambda.zip"
+  filename      = "${path.module}/upload_file_metadata_lambda.zip"
   function_name = "${var.project_name}-upload-${var.environment}"
   role          = aws_iam_role.lambda_role.arn
   handler       = "upload_lambda.lambda_handler"
