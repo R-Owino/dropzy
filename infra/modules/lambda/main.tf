@@ -41,11 +41,11 @@ resource "aws_lambda_function" "userdata" {
   }
 }
 
-resource "aws_lambda_function" "upload" {
+resource "aws_lambda_function" "upload_file_metadata" {
   filename      = "${path.module}/upload_file_metadata_lambda.zip"
   function_name = "${var.project_name}-upload-${var.environment}"
   role          = aws_iam_role.lambda_role.arn
-  handler       = "upload_lambda.lambda_handler"
+  handler       = "upload_file_metadata_lambda.lambda_handler"
   runtime       = "python3.12"
   timeout       = 35
 
