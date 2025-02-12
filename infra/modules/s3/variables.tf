@@ -8,12 +8,12 @@ variable "environment" {
   type        = string
 }
 
-variable "upload_lambda_arn" {
-  description = "Invoke ARN of the upload lambda function"
+variable "upload_metadata_function_arn" {
+  description = "ARN of the file metadata uploading lambda function"
   type        = string
 }
 
-variable "upload_lambda_function_name" {
-  description = "Name of the upload lambda function"
+variable "upload_metadata_function_name" {
+  description = "Name of the file metadata uploading lambda function"
   type        = string
 }
