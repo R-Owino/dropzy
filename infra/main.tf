@@ -50,8 +50,8 @@ module "api_gateway" {
 module "s3" {
   source = "./modules/s3"
 
-  project_name                = var.project_name
-  environment                 = var.environment
-  upload_lambda_function_name = module.lambda.upload_function_name
-  upload_lambda_arn           = module.lambda.upload_function_arn
+  project_name                  = var.project_name
+  environment                   = var.environment
+  upload_metadata_function_name = module.lambda.upload_metadata_function_name
+  upload_metadata_function_arn  = module.lambda.upload_metadata_function_arn
 }
