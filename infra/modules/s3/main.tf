@@ -64,20 +64,20 @@ resource "aws_s3_bucket_lifecycle_configuration" "files_lifecycle" {
   }
 }
 
-resource "aws_lambda_permission" "upload_lambda" {
+resource "aws_lambda_permission" "upload_metadata_lambda" {
   statement_id  = "AllowS3Invoke"
   action        = "lambda:InvokeFunction"
-  function_name = var.upload_lambda_function_name
+  function_name = var.upload_metadata_function_name
   principal     = "s3.amazonaws.com"
   source_arn    = aws_s3_bucket.files.arn
 }
 
 resource "aws_s3_bucket_notification" "s3_lambda_trigger" {
-  depends_on = [aws_lambda_permission.upload_lambda]
+  depends_on = [aws_lambda_permission.upload_metadata_lambda]
 
   bucket = aws_s3_bucket.files.id
   lambda_function {
-    lambda_function_arn = var.upload_lambda_arn
+    lambda_function_arn = var.upload_metadata_function_arn
     events              = ["s3:ObjectCreated:*"]
   }
 }
