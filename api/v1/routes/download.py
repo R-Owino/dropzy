@@ -81,7 +81,6 @@ def download_file():
                 },
                 ExpiresIn=3600
             )
-            logger.info(f"Generated pre-signed URL: {presigned_url}")
 
             return jsonify({
                 "presigned_url": presigned_url

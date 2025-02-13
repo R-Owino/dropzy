@@ -34,7 +34,6 @@ def delete_file():
         return jsonify({"error": "Unauthorized"}), 401
 
     file_key = request.args.get("file_key")
-    logger.info(f"Received file_key: {file_key}")
 
     if not file_key:
         return jsonify({
