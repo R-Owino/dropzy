@@ -32,6 +32,9 @@ app.config["SESSION_PERMANENT"] = False
 app.config["SESSION_TYPE"] = "filesystem"
 app.config["PERMANENT_SESSION_LIFETIME"] = timedelta(minutes=30)
 
+# remove prefix from landing page url
+app.register_blueprint(landing_bp)
+
 # base API blueprint
 api_bp = Blueprint('api', __name__, url_prefix='/api/v1')
 CORS(api_bp, 
@@ -40,7 +43,6 @@ CORS(api_bp,
 
 Session(app)
 
-api_bp.register_blueprint(landing_bp)
 api_bp.register_blueprint(login_bp)
 api_bp.register_blueprint(register_bp)
 api_bp.register_blueprint(confirm_bp)
