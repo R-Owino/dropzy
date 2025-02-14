@@ -6,18 +6,15 @@ services:
     environment:
       - TF_LOG=INFO
     volumes:
-      - ./infra:/terraform
+      - ./:/app
       - ~/.aws:/root/.aws:ro
-      - ./generate-env.sh:/terraform/generate-env.sh:ro
-      - type: bind
-        source: ./api/v1/.env
-        target: /terraform/api/v1/.env
+    working_dir: /app
     networks:
       - backend
     entrypoint: [ "/bin/bash", "-c" ]
     command: >
-      "terraform apply --auto-approve &&
-      /terraform/generate-env.sh"
+      "terraform -chdir=infra apply --auto-approve &&
+      ./generate-env.sh"
 
   api:
     build:
