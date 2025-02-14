@@ -2,7 +2,7 @@
 
 # capture Terraform outputs and write them directly to Flask's .env file
 
-TERRAFORM_DIR="./infra"
+TERRAFORM_DIR="/terraform"
 ENV_FILE="$(pwd)/api/v1/.env"
 TEMP_ENV_FILE="${ENV_FILE}.tmp"
 
