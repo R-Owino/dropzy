@@ -1,0 +1,45 @@
+services:
+  terraform:
+    build:
+      context: .
+      dockerfile: infra/Dockerfile
+    environment:
+      - TF_LOG=INFO
+    volumes:
+      - ./infra:/terraform
+      - ~/.aws:/root/.aws:ro
+      - ./generate-env.sh:/terraform/generate-env.sh:ro
+      - type: bind
+        source: ./api/v1/.env
+        target: /terraform/api/v1/.env
+    networks:
+      - backend
+    entrypoint: [ "/bin/bash", "-c" ]
+    command: >
+      "terraform apply --auto-approve &&
+      /terraform/generate-env.sh"
+
+  api:
+    build:
+      context: .
+      dockerfile: api/Dockerfile
+    ports:
+      - "5000:5000"
+    volumes:
+      - type: bind
+        source: ./api/v1/.env
+        target: /app/v1/.env
+        read_only: true
+      - ~/.aws:/root/.aws:ro
+      - ./api/v1/static:/app/v1/static
+      - ./api/v1/templates:/app/v1/templates
+    depends_on:
+      terraform:
+        condition: service_completed_successfully
+        required: true
+    networks:
+      - backend
+
+networks:
+  backend:
+    driver: bridge
