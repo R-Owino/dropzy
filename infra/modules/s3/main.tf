@@ -6,6 +6,7 @@ resource "random_string" "bucket_name_suffix" {
   upper   = false
 }
 
+# holds the uploaded files
 resource "aws_s3_bucket" "files" {
   bucket = "${var.project_name}-files-${random_string.bucket_name_suffix.result}"
 
@@ -13,6 +14,22 @@ resource "aws_s3_bucket" "files" {
 
   tags = {
     Name        = "${var.project_name}-files",
+    Environment = var.environment
+  }
+}
+
+# stores the terraform state remotely
+resource "aws_s3_bucket" "terraform_state" {
+  bucket = "fileshare-tfstate-7up"
+
+  force_destroy = true
+
+  lifecycle {
+    prevent_destroy = true
+  }
+
+  tags = {
+    Name        = "${var.project_name}-tfstate",
     Environment = var.environment
   }
 }
