@@ -29,6 +29,7 @@ def register():
         JSON response:
             - 200 OK: render the registration page
             - 302 Redirect: confirmation page upon successful registration
+            - 409 Conflict: email entered is already registered
     """
     if request.method == "POST":
         email = request.form.get("email")
@@ -38,6 +39,8 @@ def register():
         result = register_user(email, username, password)
         if result["Success"]:
             session["verification_email"] = email
-            return redirect(url_for("confirm.confirm"))
+            return redirect(url_for("api.confirm.confirm"))
+        elif "UsernameExistsException" in result.get("message", ""):
+            return render_template("register.html"), 409
 
     return render_template("register.html")
