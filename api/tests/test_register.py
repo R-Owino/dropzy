@@ -46,3 +46,16 @@ def test_register_post_failure(mock_register_user, client: FlaskClient):
     })
     assert response.status_code == 200
     assert b"Create Your Account" in response.data
+
+@patch("v1.routes.register.register_user",
+       return_value={"Success": False, "message": "UsernameExistsException"})
+def test_register_post_email_exists(mock_register_user, client: FlaskClient):
+    """Test registration with existing email returns 409 status"""
+    response = client.post("/api/v1/register", data={
+        "email": "existing@example.com",
+        "username": "existinguser",
+        "password": "SecurePass123!"
+    })
+
+    assert response.status_code == 409
+    assert b"Create Your Account" in response.data
