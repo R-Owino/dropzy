@@ -7,7 +7,7 @@ from flask import (Blueprint,
 logout_bp = Blueprint("logout", __name__)
 
 
-@logout_bp.route("/logout")
+@logout_bp.route("/logout", methods=["GET", "POST"])
 def logout():
     """
     Handle user logout
@@ -20,4 +20,4 @@ def logout():
             - 302 Redirect: login page
     """
     session.clear()
-    return redirect(url_for("login.login"))
+    return redirect(url_for("api.login.login"))
