@@ -10,6 +10,7 @@
     />
   </head>
   <body>
+    <div class="toast" id="errorToast"></div>
     <div class="signup-container">
       <h1 class="signup-header">Create Your Account</h1>
 
@@ -20,7 +21,7 @@
             type="email"
             id="email"
             name="email"
-            placeholder="You@email.com"
+            placeholder="you@email.com"
             required
           />
           <div class="email-validation-feedback">
@@ -76,7 +77,7 @@
 
       <div class="login-section">
         Already have an account?
-        <a href="{{ url_for('login.login') }}" class="login-link">Log In</a>
+        <a href="{{ url_for('api.login.login') }}" class="login-link">Log In</a>
       </div>
     </div>
 
