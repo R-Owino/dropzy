@@ -24,7 +24,7 @@ def login():
         - Render the login page
 
     POST:
-        - Retrieve username and password from form data
+        - Retrieve email and password from form data
         - Call Cognito to authenticate the user
         - If authentication is successful:
             - store user session details including tokens
@@ -39,27 +39,25 @@ def login():
     """
 
     if request.method == "POST":
-        username = request.form.get("username")
+        email = request.form.get("email")
         password = request.form.get("password")
 
-        logger.debug(f"Login attempt for username: {username}")
+        logger.debug(f"Login attempt for email: {email}")
 
-        result = login_user(username, password)
-        logger.debug(f"Login result: {result}")
+        result = login_user(email, password)
+        # logger.info(f"Login result: {result}")
+
         if result["Success"]:
             session.permanent = True
-
-            session["username"] = username
+            session["email"] = email
             session["access_token"] = result["tokens"]["AccessToken"]
             session["id_token"] = result["tokens"]["IdToken"]
             session["logged_in"] = True
-
             session.modified = True
-
-            logger.debug("Login successful, session created")
 
             return redirect(url_for("api.main.main"))
         else:
             logger.warning(f"Login failed: {result['message']}")
+            return render_template("login.html")
 
     return render_template("login.html")
