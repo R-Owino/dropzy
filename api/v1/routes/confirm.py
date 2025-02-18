@@ -43,7 +43,7 @@ def confirm():
 
     email = session.get("verification_email")
     if not email:
-        return redirect(url_for("register.register"))
+        return redirect(url_for("api.register.register"))
 
     if request.method == "POST":
         code = request.form.get("code")
@@ -62,10 +62,10 @@ def confirm():
             if request.headers.get('Accept') == 'application/json':
                 return jsonify({
                     "success": result.get("Success", True),
-                    "redirect_url": url_for("login.login")
+                    "redirect_url": url_for("api.login.login")
                 })
             else:
-                return redirect(url_for("login.login"))
+                return redirect(url_for("api.login.login"))
         else:
             logger.warning(
                 f"Verification failed for {email}: {result.get('message')}"
