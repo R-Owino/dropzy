@@ -15,14 +15,14 @@ def client():
 def test_logout(client):
     """Test GET /logout clears session and redirects to login"""
     with client.session_transaction() as session:
-        session["username"] = "testuser"
+        session["email"] = "testuser@example.com"
         session["logged_in"] = True
 
-    response = client.get("/logout")
+    response = client.get("/api/v1/logout")
 
     assert response.status_code == 302
-    assert "/login" in response.location
+    assert "/api/v1/login" in response.location
 
     with client.session_transaction() as session:
-        assert "username" not in session
+        assert "email" not in session
         assert "logged_in" not in session

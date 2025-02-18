@@ -19,7 +19,7 @@ def test_confirm_get_redirects_to_register(client):
     """
     Test GET /confirm redirects to register if email is missing from session
     """
-    response = client.get("/confirm")
+    response = client.get("/api/v1/confirm")
     assert response.status_code == 302
     assert "/register" in response.location
 
@@ -31,7 +31,7 @@ def test_confirm_get_renders_template(client):
     with client.session_transaction() as session:
         session["verification_email"] = "test@example.com"
 
-    response = client.get("/confirm")
+    response = client.get("/api/v1/confirm")
 
     assert response.status_code == 200
     assert b"Verify Your Account" in response.data
@@ -44,7 +44,7 @@ def test_confirm_post_missing_code(client):
     with client.session_transaction() as session:
         session["verification_email"] = "test@example.com"
 
-    response = client.post("/confirm", data={})
+    response = client.post("/api/v1/confirm", data={})
 
     assert response.status_code == 200
     assert b"Verify Your Account" in response.data
@@ -58,7 +58,7 @@ def test_confirm_post_success(mock_confirm_user, client):
     with client.session_transaction() as session:
         session["verification_email"] = "test@example.com"
 
-    response = client.post("/confirm",
+    response = client.post("/api/v1/confirm",
                            data={"code": "123456"},
                            headers={"Accept": "application/json"})
     print("Mock called with:", mock_confirm_user.call_args)
@@ -67,7 +67,7 @@ def test_confirm_post_success(mock_confirm_user, client):
     assert response.status_code == 200
     json_data = response.get_json()
     assert json_data["success"] is True
-    assert json_data["redirect_url"] == "/login"
+    assert json_data["redirect_url"] == "/api/v1/login"
 
 
 def test_confirm_post_already_confirmed(client):
@@ -81,7 +81,7 @@ def test_confirm_post_already_confirmed(client):
                return_value={
                    "Success": False,
                    "message": "User is already CONFIRMED"}):
-        response = client.post("/confirm",
+        response = client.post("/api/v1/confirm",
                                data={"code": "123456"},
                                headers={"Accept": "text/html"})
 
@@ -100,7 +100,7 @@ def test_confirm_post_failure(mock_confirm_user, client):
     with client.session_transaction() as session:
         session["verification_email"] = "test@example.com"
 
-    response = client.post("/confirm",
+    response = client.post("/api/v1/confirm",
                            data={"code": "000000"},
                            headers={"Accept": "application/json"})
     assert response.status_code == 200

@@ -20,7 +20,7 @@ def client():
 
 def test_generate_presigned_url_unauthorized(client: FlaskClient):
     """Test POST /upload/presigned-url fails if user is not logged in"""
-    response = client.post("/upload/presigned-url", json={})
+    response = client.post("/api/v1/upload/presigned-url", json={})
     assert response.status_code == 401
     assert response.get_json()["error"] == "Unauthorized"
 
@@ -28,9 +28,9 @@ def test_generate_presigned_url_unauthorized(client: FlaskClient):
 def test_generate_presigned_url_missing_fields(client: FlaskClient):
     """Test POST /upload/presigned-url fails if required fields are missing"""
     with client.session_transaction() as session:
-        session["username"] = "testuser"
+        session["email"] = "testuser@example.com"
 
-    response = client.post("/upload/presigned-url", json={})
+    response = client.post("/api/v1/upload/presigned-url", json={})
     assert response.status_code == 400
     assert response.get_json()["error"] == "Invalid request"
 
@@ -38,9 +38,9 @@ def test_generate_presigned_url_missing_fields(client: FlaskClient):
 def test_generate_presigned_url_file_too_large(client: FlaskClient):
     """Test POST /upload/presigned-url fails if file size exceeds 2.5GB"""
     with client.session_transaction() as session:
-        session["username"] = "testuser"
+        session["email"] = "testuser@example.com"
 
-    response = client.post("/upload/presigned-url", json={
+    response = client.post("/api/v1/upload/presigned-url", json={
         "fileName": "largefile.mp4",
         "contentType": "video/mp4",
         "fileSize": 2.6 * 1024 * 1024 * 1024
@@ -52,9 +52,9 @@ def test_generate_presigned_url_file_too_large(client: FlaskClient):
 def test_generate_presigned_url_invalid_filename(client: FlaskClient):
     """Test with malicious/invalid filename"""
     with client.session_transaction() as session:
-        session["username"] = "testuser"
+        session["email"] = "testuser@example.com"
 
-    response = client.post("/upload/presigned-url", json={
+    response = client.post("/api/v1/upload/presigned-url", json={
         "fileName": "../../../malicious.txt",
         "contentType": "text/plain",
         "fileSize": 1024
@@ -66,9 +66,9 @@ def test_generate_presigned_url_invalid_filename(client: FlaskClient):
 def test_generate_presigned_url_unsupported_content_type(client: FlaskClient):
     """Test with unsupported content type"""
     with client.session_transaction() as session:
-        session["username"] = "testuser"
+        session["email"] = "testuser@example.com"
 
-    response = client.post("/upload/presigned-url", json={
+    response = client.post("/api/v1/upload/presigned-url", json={
         "fileName": "test.xyz",
         "contentType": "application/unknown",
         "fileSize": 1024
@@ -81,7 +81,7 @@ def test_generate_presigned_url_unsupported_content_type(client: FlaskClient):
 def test_generate_presigned_url_success(client: FlaskClient):
     """Test successful generation of presigned URL"""
     with client.session_transaction() as session:
-        session["username"] = "testuser"
+        session["email"] = "testuser@example.com"
 
     s3 = boto3.client("s3")
     s3.create_bucket(
@@ -89,7 +89,7 @@ def test_generate_presigned_url_success(client: FlaskClient):
         CreateBucketConfiguration={"LocationConstraint": "us-west-2"}
     )
 
-    response = client.post("/upload/presigned-url", json={
+    response = client.post("/api/v1/upload/presigned-url", json={
         "fileName": "testfile.txt",
         "contentType": "text/plain",
         "fileSize": 1024
@@ -105,9 +105,9 @@ def test_generate_presigned_url_success(client: FlaskClient):
 def test_generate_presigned_url_no_credentials(mock_aws, client: FlaskClient):
     """Test presigned URL generation fails due to missing credentials"""
     with client.session_transaction() as session:
-        session["username"] = "testuser"
+        session["email"] = "testuser@example.com"
 
-    response = client.post("/upload/presigned-url", json={
+    response = client.post("/api/v1/upload/presigned-url", json={
         "fileName": "testfile.txt",
         "contentType": "text/plain",
         "fileSize": 1024
@@ -126,9 +126,9 @@ def test_generate_presigned_url_partial_credentials(
 ):
     """Test presigned URL generation fails due to partial credentials."""
     with client.session_transaction() as session:
-        session["username"] = "testuser"
+        session["email"] = "testuser@example.com"
 
-    response = client.post("/upload/presigned-url", json={
+    response = client.post("/api/v1/upload/presigned-url", json={
         "fileName": "testfile.txt",
         "contentType": "text/plain",
         "fileSize": 1024

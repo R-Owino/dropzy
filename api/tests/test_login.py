@@ -16,7 +16,7 @@ def client():
 
 def test_login_get(client: FlaskClient):
     """Test GET /login renders the login page."""
-    response = client.get("/login")
+    response = client.get("/api/v1/login")
     assert response.status_code == 200
     assert b"Login to your Account" in response.data
 
@@ -27,8 +27,8 @@ def test_login_get(client: FlaskClient):
 })
 def test_login_post_success(mock_login_user, client: FlaskClient):
     """Test successful user login redirects to main page"""
-    response = client.post("/login", data={
-        "username": "testuser",
+    response = client.post("/api/v1/login", data={
+        "email": "testuser@example.com",
         "password": "SecurePass123!"
     })
 
@@ -36,7 +36,7 @@ def test_login_post_success(mock_login_user, client: FlaskClient):
     assert "/main" in response.location
 
     with client.session_transaction() as session:
-        assert session["username"] == "testuser"
+        assert session["email"] == "testuser@example.com"
         assert session["access_token"] == "mock_access"
         assert session["id_token"] == "mock_id"
         assert session["logged_in"] is True
@@ -46,8 +46,8 @@ def test_login_post_success(mock_login_user, client: FlaskClient):
        return_value={"Success": False, "message": "Invalid credentials."})
 def test_login_post_failure(mock_login_user, client: FlaskClient):
     """Test failed user login re-renders login page"""
-    response = client.post("/login", data={
-        "username": "testuser",
+    response = client.post("/api/v1/login", data={
+        "email": "testuser@example.com",
         "password": "WrongPass"
     })
 

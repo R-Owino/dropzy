@@ -15,7 +15,7 @@ def client():
 
 def test_main_get_unauthorized(client: FlaskClient):
     """Test GET /main redirects to login if not logged in"""
-    response = client.get("/main")
+    response = client.get("/api/v1/main")
     assert response.status_code == 302
     assert "/login" in response.location
 
@@ -24,17 +24,17 @@ def test_main_get_authorized(client: FlaskClient):
     """Test GET /main renders template when logged in"""
     with client.session_transaction() as session:
         session["logged_in"] = True
-        session["username"] = "testuser"
+        session["email"] = "testuser@example.com"
         session["id_token"] = "test_token"
 
-    response = client.get("/main")
+    response = client.get("/api/v1/main")
     assert response.status_code == 200
-    assert b"testuser" in response.data
+    assert b"testuser@example.com" in response.data
 
 
 def test_main_post_unauthorized(client: FlaskClient):
     """Test POST /main redirects to login if not logged in"""
-    response = client.post("/main")
+    response = client.post("/api/v1/main")
     assert response.status_code == 302
     assert "/login" in response.location
 
@@ -43,9 +43,9 @@ def test_main_post_authorized(client: FlaskClient):
     """Test POST /main renders template when logged in"""
     with client.session_transaction() as session:
         session["logged_in"] = True
-        session["username"] = "testuser"
+        session["email"] = "testuser@example.com"
         session["id_token"] = "test_token"
 
-    response = client.post("/main")
+    response = client.post("/api/v1/main")
     assert response.status_code == 200
-    assert b"testuser" in response.data
+    assert b"testuser@example.com" in response.data

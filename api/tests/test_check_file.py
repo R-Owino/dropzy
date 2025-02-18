@@ -41,14 +41,14 @@ def test_check_file_exists(client: FlaskClient):
     table = setup_dynamodb()
 
     with client.session_transaction() as session:
-        session["username"] = "test_user"
+        session["email"] = "testuser@example.com"
 
     # Insert a file entry into the table
     test_file_name = "test_document.txt"
     table.put_item(Item={"file_name": secure_filename(test_file_name)})
 
     response = client.post(
-        "/upload/check-file-exists",
+        "/api/v1/upload/check-file-exists",
         data=json.dumps({"fileName": test_file_name}),
         content_type="application/json",
     )
@@ -62,10 +62,10 @@ def test_check_file_not_exists(client: FlaskClient):
     """Test case for checking if a non-existent file is correctly reported"""
     setup_dynamodb()
     with client.session_transaction() as session:
-        session["username"] = "test_user"
+        session["email"] = "testuser@example.com"
 
     response = client.post(
-        "/upload/check-file-exists",
+        "/api/v1/upload/check-file-exists",
         data=json.dumps({"fileName": "nonexistent.txt"}),
         content_type="application/json",
     )
@@ -78,7 +78,7 @@ def test_check_file_not_exists(client: FlaskClient):
 def test_check_file_unauthorized(client: FlaskClient):
     """Test case for unauthorized access to the endpoint"""
     response = client.post(
-        "/upload/check-file-exists",
+        "/api/v1/upload/check-file-exists",
         data=json.dumps({"fileName": "test.txt"}),
         content_type="application/json",
     )
@@ -90,10 +90,10 @@ def test_check_file_unauthorized(client: FlaskClient):
 def test_check_file_invalid_request(client: FlaskClient):
     """Test case for handling invalid requests with missing fileName"""
     with client.session_transaction() as session:
-        session["username"] = "test_user"
+        session["email"] = "testuser@example.com"
 
     response = client.post(
-        "/upload/check-file-exists",
+        "/api/v1/upload/check-file-exists",
         data=json.dumps({}),
         content_type="application/json",
     )
@@ -121,10 +121,10 @@ def test_check_file_credentials_error(
     )
 
     with client.session_transaction() as session:
-        session["username"] = "test_user"
+        session["email"] = "testuser@example.com"
 
     response = client.post(
-        "/upload/check-file-exists",
+        "/api/v1/upload/check-file-exists",
         data=json.dumps({"fileName": "test.txt"}),
         content_type="application/json",
     )

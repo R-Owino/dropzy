@@ -15,7 +15,7 @@ def client():
 
 def test_resend_verification_no_email(client):
     """Test POST /resend_verification fails if no email in session"""
-    response = client.post("/resend_verification")
+    response = client.post("/api/v1/resend_verification")
     assert response.status_code == 400
     assert response.get_json()["success"] is False
     assert response.get_json()["message"] == "No email to verify."
@@ -26,9 +26,9 @@ def test_resend_verification_no_email(client):
 def test_resend_verification_success(mock_resend, client):
     """Test successful resend of verification code."""
     with client.session_transaction() as session:
-        session["verification_email"] = "test@example.com"
+        session["verification_email"] = "testuser@example.com"
 
-    response = client.post("/resend_verification")
+    response = client.post("/api/v1/resend_verification")
     assert response.status_code == 200
     assert response.get_json()["success"] is True
     assert response.get_json()["message"] == "Verfication code resent."
@@ -39,9 +39,9 @@ def test_resend_verification_success(mock_resend, client):
 def test_resend_verification_failure(mock_resend, client):
     """Test failure when resending verification code"""
     with client.session_transaction() as session:
-        session["verification_email"] = "test@example.com"
+        session["verification_email"] = "testuser@example.com"
 
-    response = client.post("/resend_verification")
+    response = client.post("/api/v1/resend_verification")
     assert response.status_code == 500
     assert response.get_json()["success"] is False
     assert response.get_json()["message"] == "Cognito error."
