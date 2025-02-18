@@ -71,7 +71,7 @@ def generate_presigned_url():
                 other failures
     """
 
-    if "username" not in session:
+    if "email" not in session:
         return jsonify({"error": "Unauthorized"}), 401
 
     data = request.get_json()

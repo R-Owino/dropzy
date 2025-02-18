@@ -30,7 +30,7 @@ def check_file_exists():
             - 500 Internal Server Error: If an AWS credentials error occurs
     """
 
-    if "username" not in session:
+    if "email" not in session:
         return jsonify({"error": "Unauthorized"}), 401
 
     data = request.get_json()

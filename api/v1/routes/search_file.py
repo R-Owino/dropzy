@@ -24,7 +24,7 @@ def search_files():
             - 200 OK: search results successful
             - 500 Internal Server Error: API or network failures
     """
-    if "username" not in session:
+    if "email" not in session:
         return jsonify({"error": "Unauthorized"}), 401
 
     search_term = request.args.get('search', '')

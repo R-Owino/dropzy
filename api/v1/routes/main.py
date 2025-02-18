@@ -30,14 +30,10 @@ def main():
             - 200 OK: render main page content for authenticated users
             - 302 Redirect: login page if user is unauthenticated
     """
-    logger.debug("Current session contents: %s", dict(session))
-    logger.debug("Session logged_in: %s", session.get("logged_in"))
-    logger.debug("Session username: %s", session.get("username"))
-    logger.debug("id_token: %s", session.get("id_token"))
 
     if not session.get("logged_in"):
         logger.warning("Unauthorized access attempt to main page")
         return redirect(url_for("api.login.login"))
 
     return render_template("main.html",
-                           username=session["username"])
+                           username=session["email"])

@@ -30,7 +30,7 @@ def delete_file():
             - 200 OK: file deleted successfully
             - 500 Internal Server Error: API or network failures
     """
-    if "username" not in session:
+    if "email" not in session:
         return jsonify({"error": "Unauthorized"}), 401
 
     file_key = request.args.get("file_key")
