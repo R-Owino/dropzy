@@ -1,6 +1,83 @@
+// API Base URL
+const API_BASE_URL = '/api/v1';
+
 document.addEventListener('DOMContentLoaded', function () {
     const emailInput = document.getElementById('email');
+    const passwordInput = document.getElementById('password');
     const validationFeedback = document.querySelector('.email-validation-feedback');
+    const requirementsDiv = document.getElementById('password-requirements');
+    const form = document.querySelector('form');
+
+    // handle email validation display
+    emailInput.addEventListener('focus', () => {
+        validationFeedback.style.display = 'block';
+        setTimeout(() => validationFeedback.classList.add('visible'), 10);
+    });
+
+    emailInput.addEventListener('blur', (e) => {
+        if (!e.relatedTarget?.closest('.email-validation-feedback')) {
+            validationFeedback.classList.remove('visible');
+            setTimeout(() => {
+                if (!validationFeedback.classList.contains('visible')) {
+                    validationFeedback.style.display = 'none';
+                }
+            }, 300);
+        }
+    });
+
+    // handle password requirements display
+    passwordInput.addEventListener('focus', () => {
+        requirementsDiv.style.display = 'block';
+        passwordInput.closest('.input-group').classList.add('active');
+    });
+
+    passwordInput.addEventListener('blur', (e) => {
+        if (!e.relatedTarget?.closest('.password-requirements')) {
+            requirementsDiv.style.display = 'none';
+            passwordInput.closest('.input-group').classList.remove('active');
+        }
+    });
+    // form submission and validation
+    form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        const formData = new FormData(e.target);
+
+        try {
+            const response = await fetch(`${API_BASE_URL}/register`, {
+                method: 'POST',
+                body: formData
+            });
+
+            if (response.redirected) {
+                window.location.href = response.url;
+            } else {
+                if (response.status === 409) {
+                    showToast('User with email already exists.')
+                } else {
+                    showToast('Registration failed. Please check your inputs.')
+                }
+            }
+        } catch (error) {
+            console.error('Registration error:', error);
+            showToast('An error occurred. Please try again.');
+        }
+    });
+
+    function showToast(message) {
+        const toast = document.getElementById('errorToast');
+        toast.textContent = message;
+        toast.style.display = 'block';
+        toast.style.animation = 'none';
+        void toast.offsetWidth;
+        toast.style.animation = 'slideIn 0.5s, fadeOut 0.5s 2.5s';
+
+        toast.addEventListener('animationend', (e) => {
+            if (e.animationName === 'fadeOut') {
+                toast.style.display = 'none';
+            }
+        });
+    }
 
     // email validation patterns
     const emailPatterns = {
