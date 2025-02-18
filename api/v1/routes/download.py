@@ -34,7 +34,7 @@ def download_file():
             - 500 Internal Server Error: S3 errors and unexpected failures
     """
 
-    if "username" not in session:
+    if "email" not in session:
         return jsonify({"error": "Unauthorized"}), 401
 
     try:
