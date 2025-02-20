@@ -54,7 +54,7 @@ jobs:
           docker run --rm \
             -v $(pwd)/api/v1/.env:/app/v1/.env \
             ${{ secrets.DOCKERHUB_USERNAME }}/file-sharing-api:latest \
-            pytest /app/tests/
+            pytest tests/
 
       - name: Push API Image
         if: github.ref == 'refs/heads/main'
