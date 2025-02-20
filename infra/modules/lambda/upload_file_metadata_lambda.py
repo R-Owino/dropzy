@@ -16,11 +16,12 @@ dynamodb = boto3.resource("dynamodb")
 TABLE_NAME =  os.environ["DYNAMODB_TABLE_NAME"]
 
 def lambda_handler(event, context):
-    logger.info(f"Received event: {json.dumps(event)}")
+    logger.info(f"Lambda function version: {context.function_version}")
+    logger.info(f"Event source: {event.get('eventSource')}")
 
     try:
         for record in event["Records"]:
-            if record["eventName"] == "ObjectCreated:Put":
+            if record["eventName"].startswith("ObjectCreated:"):
                 bucket_name = record["s3"]["bucket"]["name"]
                 file_key = record["s3"]["object"]["key"]
                 size_bytes = record["s3"]["object"]["size"]
@@ -65,7 +66,6 @@ def lambda_handler(event, context):
                         'upload_timestamp': datetime.now(timezone.utc).isoformat(),
                         'size_bytes': size_bytes
                     }
-
                     
                     table.put_item(Item=file_metadata)
                     logger.info(f"Metadata for {file_name} stored successfully")  
