@@ -3,6 +3,7 @@ FROM python:3.11-slim
 WORKDIR /app
 
 COPY api/requirements.txt /app/
+COPY api/tests /app/
 COPY api/v1/app.py /app/v1/
 COPY api/v1/cognito.py /app/v1/
 COPY api/v1/config.py /app/v1/
