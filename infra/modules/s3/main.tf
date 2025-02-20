@@ -18,22 +18,6 @@ resource "aws_s3_bucket" "files" {
   }
 }
 
-# stores the terraform state remotely
-resource "aws_s3_bucket" "terraform_state" {
-  bucket = "fileshare-tfstate-7up"
-
-  force_destroy = true
-
-  lifecycle {
-    prevent_destroy = true
-  }
-
-  tags = {
-    Name        = "${var.project_name}-tfstate",
-    Environment = var.environment
-  }
-}
-
 resource "aws_s3_bucket_ownership_controls" "files" {
   bucket = aws_s3_bucket.files.id
 
@@ -95,7 +79,10 @@ resource "aws_s3_bucket_notification" "s3_lambda_trigger" {
   bucket = aws_s3_bucket.files.id
   lambda_function {
     lambda_function_arn = var.upload_metadata_function_arn
-    events              = ["s3:ObjectCreated:*"]
+    events              = [
+      "s3:ObjectCreated:Put",
+      "s3:ObjectCreated:CompleteMultipartUpload"
+    ]
   }
 }
 
@@ -109,4 +96,9 @@ resource "aws_s3_bucket_cors_configuration" "files" {
     expose_headers  = ["ETag"]
     max_age_seconds = 3000
   }
+}
+
+resource "aws_s3_bucket_accelerate_configuration" "files" {
+  bucket = aws_s3_bucket.files.id
+  status = "Enabled"
 }
