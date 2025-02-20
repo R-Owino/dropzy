@@ -33,7 +33,7 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // File upload handler
-document.addEventListener('DOMContentLoaded', function () {
+document.addEventListener('DOMContentLoaded', async function () {
     const fileInput = document.getElementById('file-upload');
     const fileInfo = document.querySelector('.file-info');
     const selectedFilename = document.getElementById('selected-filename');
@@ -41,17 +41,14 @@ document.addEventListener('DOMContentLoaded', function () {
     const progressContainer = document.querySelector('.progress-container');
     const progressBar = document.getElementById('upload-progress');
     const uploadStatus = document.getElementById('upload-status');
+    const fetchRecentFiles = await initializeSearchAndDisplayFunctionality();
 
     const MAX_FILE_SIZE = 2.5 * 1024 * 1024 * 1024;
+    const CHUNK_SIZE = 5 * 1024 * 1024;
 
     fileInput.addEventListener('change', (event) => {
         const file = event.target.files[0];
-
-        // Reset status and progress
-        uploadStatus.textContent = '';
-        uploadStatus.className = 'upload-status';
-        progressBar.style.width = '0%';
-        progressContainer.style.display = 'none';
+        resetUploadState();
 
         if (!file) {
             fileInfo.style.display = 'none';
@@ -60,10 +57,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         // Validate file size
         if (file.size > MAX_FILE_SIZE) {
-            uploadStatus.textContent = `File "${file.name}" exceeds the maximum size of 2.5GB`;
-            uploadStatus.className = 'upload-status error';
-            fileInfo.style.display = 'none';
-            fileInput.value = '';
+            showError(`File "${file_name}" exceeds the maximum size of 2.5GB`);
             return;
         }
 
@@ -81,110 +75,174 @@ document.addEventListener('DOMContentLoaded', function () {
             const checkResponse = await fetch(`${API_BASE_URL}/upload/check-file-exists`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    fileName: file.name
-                })
+                body: JSON.stringify({ fileName: file.name })
             });
 
-            if (!checkResponse.ok) {
-                throw new Error('Failed to check file existence');
-            }
-
+            if (!checkResponse.ok) throw new Error('Failed to check file existence');
             const { exists } = await checkResponse.json();
 
             // ask for upload confirmation if file exists
             if (exists) {
-                const shouldOverwrite = await new Promise(resolve => {
-                    const dialog = document.createElement('div');
-                    dialog.className = 'confirmation-dialog';
-                    dialog.innerHTML = `
-                        <div class="dialog-content">
-                            <p>A file named "${file.name}" already exists. Do you want to continue with the upload?
-                                A new version will be created.</p>
-                            <div class="dialog-buttons">
-                                <button class="confirm-btn">Continue</button>
-                                <button class="cancel-btn">Abort</button>
-                            </div>
-                        </div>
-                    `;
-
-                    dialog.querySelector('.confirm-btn').onclick = () => {
-                        document.body.removeChild(dialog);
-                        resolve(true);
-                    };
-                    dialog.querySelector('.cancel-btn').onclick = () => {
-                        document.body.removeChild(dialog);
-                        resolve(false);
-                    };
-
-                    document.body.appendChild(dialog);
-                });
-
-                if (!shouldOverwrite) {
-                    uploadStatus.textContent = 'Upload cancelled.';
-                    uploadStatus.className = 'upload-status';
+                const shouldContinue = await shouldOverwriteDialog(file.name);
+                if (!shouldContinue) {
+                    resetForm();
                     return;
                 }
             }
-            // request a pre-signed url
-            const response = await fetch(`${API_BASE_URL}/upload/presigned-url`, {
+
+            // initialize upload
+            progressContainer.style.display = 'block';
+            uploadButton.disabled = true;
+            uploadStatus.textContent = 'Initializing upload...';
+
+            // initialize multipart upload
+            const initResponse = await fetch(`${API_BASE_URL}/upload/initialize`, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                },
                 body: JSON.stringify({
                     fileName: file.name,
-                    contentType: file.type,
-                    fileSize: file.size
+                    contentType: file.type
                 })
             });
 
-            if (!response.ok) {
-                throw new Error('Failed to get pre-signed URL');
+            if (!initResponse.ok) throw new Error('Failed to initialize upload');
+            const { uploadId, key } = await initResponse.json();
+
+            // create upload chunks
+            const chunks = []
+            let start = 0;
+            while (start < file.size) {
+                chunks.push(file.slice(start, Math.min(start + CHUNK_SIZE, file.size)));
+                start += CHUNK_SIZE;
             }
 
-            const { url, key } = await response.json();
+            // upload chunks
+            const parts = []
+            let uploadedSize = 0;
 
-            // upload file to s3 using the presigned url
-            const uploadResponse = await fetch(url, {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': file.type
-                },
-                body: file,
-                mode: 'cors',
-                onUploadProgress: (ProgressEvent) => {
-                    const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
-                    progressBar.style.width = percentCompleted + '%';
-                }
+            for (let i = 0; i < chunks.length; i++) {
+                // get pre-signed URL for a chunk
+                const urlResponse = await fetch(`${API_BASE_URL}/upload/chunk-url`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        fileName: file.name,
+                        uploadId: uploadId,
+                        partNumber: i + 1
+                    })
+                });
+
+                if (!urlResponse.ok) throw new Error('Failed to get chunk upload URL');
+                const { url } = await urlResponse.json();
+
+                // upload chunk
+                const uploadResponse = await fetch(url, {
+                    method: 'PUT',
+                    body: chunks[i]
+                });
+
+                if (!uploadResponse.ok) throw new Error(`Failed to upload part ${i + 1}`);
+
+                uploadedSize += chunks[i].size;
+                const progress = (uploadedSize / file.size) * 100;
+                updateProgress(progress);
+
+                parts.push({
+                    PartNumber: i + 1,
+                    ETag: uploadResponse.headers.get('Etag')
+                });
+            }
+            // complete multipart upload
+            const completeResponse = await fetch(`${API_BASE_URL}/upload/complete`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    key: key,
+                    uploadId: uploadId,
+                    parts: parts
+                })
             });
 
-            // Show progress
-            progressContainer.style.display = 'block';
-            progressBar.style.width = '0%';
-            uploadButton.disabled = true;
-            uploadStatus.textContent = '';
-            uploadStatus.className = 'upload-status';
+            if (!completeResponse.ok) throw new Error('Failed to complete upload');
 
-            if (!uploadResponse.ok) {
-                throw new Error('Failed to upload file to S3');
-            }
-
-            uploadStatus.textContent = `File "${file.name}" uploaded successfully.`;
-            uploadStatus.className = 'upload-status success';
-            fileInput.value = '';
-            fileInfo.style.display = 'none';
+            await showTemporarySuccess(`File "${file.name}" uploaded successfully.`);
+            await fetchRecentFiles();
 
         } catch (error) {
             console.error('Upload error:', error);
-            uploadStatus.textContent = `Error uploading "${file.name}": ${error.message}`;
-            uploadStatus.className = 'upload-status error';
+            showError(`Error uploading "${file.name}": ${error.message}`);
         } finally {
             uploadButton.disabled = false;
-            setTimeout(() => {
-                progressContainer.style.display = 'none';
-                progressBar.style.width = '0%';
-            }, 1000);
         }
     });
+
+    function shouldOverwriteDialog(fileName) {
+        return new Promise(resolve => {
+            const dialog = document.createElement('div');
+            dialog.className = 'confirmation-dialog';
+            dialog.innerHTML = `
+                <div class="dialog-content">
+                    <p>A file named "${fileName}" already exists. Do you want to continue?</p>
+                    <div class="dialog-buttons">
+                        <button class="confirm-btn">Continue</button>
+                        <button class="cancel-btn">Cancel</button>
+                    </div>
+                </div>
+            `;
+
+            dialog.querySelector('.confirm-btn').onclick = () => {
+                document.body.removeChild(dialog);
+                resolve(true);
+            };
+            dialog.querySelector('.cancel-btn').onclick = () => {
+                document.body.removeChild(dialog);
+                resolve(false);
+            };
+
+            document.body.appendChild(dialog);
+        });
+    }
+
+    async function showTemporarySuccess(message, duration = 3000) {
+        showSuccess(message);
+        setTimeout(() => {
+            resetForm();
+            resetUploadState();
+        }, duration);
+    }
+
+    function updateProgress(percentage) {
+        progressBar.style.width = `${percentage}%`;
+        uploadStatus.textContent = `Uploading: ${Math.round(percentage)}%`;
+    }
+
+    function resetUploadState() {
+        uploadStatus.textContent = '';
+        uploadStatus.className = 'upload-status';
+        progressBar.style.width = '0%';
+        progressContainer.style.display = 'none';
+    }
+
+    function resetForm() {
+        fileInput.value = '';
+        fileInfo.style.display = 'none';
+        resetUploadState();
+    }
+
+    function showError(message) {
+        uploadStatus.textContent = message;
+        uploadStatus.className = 'upload-status error';
+        fileInfo.style.display = 'none';
+        fileInput.value = '';
+    }
+
+    function showSuccess(message) {
+        uploadStatus.textContent = message;
+        uploadStatus.className = 'upload-status success';
+    }
 });
 
 // handle fetching, displaying and searching files
@@ -216,7 +274,7 @@ async function initializeSearchAndDisplayFunctionality() {
             }
             const data = await response.json();
 
-            // Only proceed with display logic if we're not in search mode
+            // Only proceed with display logic if not in search mode
             if (!isSearching) {
                 if (data.files && data.files.length > 0) {
                     displayFiles(data.files);
@@ -255,6 +313,8 @@ async function initializeSearchAndDisplayFunctionality() {
             const fileItem = createFileElement(file);
             columns[columnIndex].appendChild(fileItem);
         });
+
+        lucide.createIcons();
     }
 
     // handle search functionality
@@ -405,9 +465,6 @@ function createFileElement(file) {
         </div>
     `;
 
-    // Re-initialize Lucide icons
-    lucide.createIcons();
-
     return fileItem;
 }
 
@@ -419,12 +476,10 @@ function showToast(message, type = 'success') {
 
     document.body.appendChild(toast);
 
-    // Show the toast
     setTimeout(() => {
         toast.classList.add('show');
     }, 100);
 
-    // Hide the toast after 3 seconds
     setTimeout(() => {
         toast.classList.remove('show');
         setTimeout(() => document.body.removeChild(toast), 300);
@@ -444,17 +499,17 @@ document.addEventListener('DOMContentLoaded', async () => {
         try {
             const fileKey = downloadIcon.dataset.fileKey;
             const response = await fetch(`${API_BASE_URL}/download?file_key=${encodeURIComponent(fileKey)}`);
-            
+
             if (!response.ok) {
                 throw new Error('Failed to generate download URL');
             }
-    
+
             const data = await response.json();
             const downloadUrl = data.presigned_url;
 
             window.location.href = downloadUrl;
             showToast('Download started!');
-    
+
         } catch (error) {
             console.error('Download error:', error);
             showToast('Failed to download file', 'error');
@@ -509,7 +564,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 
             if (response.ok) {
                 showToast('File deleted successfully!');
-                // Call the fetchRecentFiles function to refresh the UI
                 await fetchRecentFiles();
             } else {
                 const errorData = await response.json();
