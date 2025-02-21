@@ -49,14 +49,14 @@ document.addEventListener('DOMContentLoaded', function () {
                 body: formData
             });
 
+            const data = await response.json()
+
             if (response.redirected) {
                 window.location.href = response.url;
+            } else if (response.status === 409) {
+                showToast(data.message);
             } else {
-                if (response.status === 409) {
-                    showToast('User with email already exists.')
-                } else {
-                    showToast('Registration failed. Please check your inputs.')
-                }
+                showToast(data.message);
             }
         } catch (error) {
             console.error('Registration error:', error);
