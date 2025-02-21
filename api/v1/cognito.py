@@ -1,5 +1,6 @@
 import boto3
 import logging
+import re
 from botocore.exceptions import ClientError
 from v1.config import Config
 from typing import Dict
@@ -29,6 +30,9 @@ def register_user(
         dict: dictionary with 'Success' (bool) and
                 optional 'message' (str) if an error occurs
     """
+    if not re.match(r"^[^\s@]+@[^\s@]+\.[^\s@]+$", email):
+        return {"Success": False, "message": "Invalid email format"}
+
     try:
         cognito_client.sign_up(
             ClientId=Config.AWS_COGNITO_CLIENT_ID,
@@ -60,6 +64,9 @@ def confirm_user(email: str, code: str) -> Dict[str, bool | str]:
         dict: dictionary with 'Success' (bool) and
                 optional 'message' (str) if an error occurs
     """
+    if not code:
+        return {"Success": False, "message": "Confirmation code is required"}
+
     try:
         cognito_client.confirm_sign_up(
             ClientId=Config.AWS_COGNITO_CLIENT_ID,
@@ -85,6 +92,9 @@ def resend_verification_code(email: str) -> Dict[str, bool | str]:
         dict: dictionary with 'Success' (bool) and
                 optional 'message' (str) if an error occurs
     """
+    if not email:
+        return {"Success": False, "message": "Email is required"}
+
     try:
         cognito_client.resend_confirmation_code(
             ClientId=Config.AWS_COGNITO_CLIENT_ID,
@@ -122,3 +132,25 @@ def login_user(
         return {"Success": True, "tokens": response["AuthenticationResult"]}
     except ClientError as e:
         return {"Success": False, "message": e.response["Error"]["Message"]}
+
+
+def email_exists(email: str) -> bool:
+    """
+    Checks if an email address is already registered in Cognito
+
+    Args:
+        email (str): the email address to check
+
+        Returns:
+            bool: True if the email address is already registered,
+                False otherwise
+    """
+    try:
+        response = cognito_client.list_users(
+            UserPoolId=Config.AWS_COGNITO_USER_POOL_ID,
+            Filter=f'email = "{email}"'
+        )
+        return len(response['Users']) > 0
+    except ClientError as e:
+        logger.error(f"Error checking email existence: {e}")
+        return False
