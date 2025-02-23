@@ -8,8 +8,13 @@ body {
     font-family: Arial, sans-serif;
     background-color: #212750;
     color: #f8f8f2;
-    display: flex;
     height: 100vh;
+    margin: 0;
+}
+
+.app-container {
+    display: flex;
+    height: 100%;
 }
 
 .dashboard-container {
@@ -158,12 +163,37 @@ body {
     text-overflow: ellipsis;
 }
 
-.dropdown-arrow {
+.down-arrow {
     transition: transform 0.3s ease;
 }
 
-.dropdown-arrow.active {
+.down-arrow.active {
     transform: rotate(180deg);
+}
+
+.user-icon {
+    display: none;
+    text-align: center;
+    margin-top: auto;
+    padding: 15px;
+    color: #5681d0;
+    cursor: pointer;
+}
+
+.sidebar:not(.expanded) .user-icon {
+    display: block;
+}
+
+.sidebar:not(.expanded) .user-profile-container {
+    display: none;
+}
+
+.sidebar.expanded .user-icon {
+    display: none;
+}
+
+.sidebar.expanded .user-profile-container {
+    display: block;
 }
 
 .logout-section {
@@ -174,7 +204,7 @@ body {
 }
 
 .logout-section.expanded {
-    max-height: 50px;
+    max-height: 120px;
 }
 
 .logout-btn {
@@ -191,6 +221,98 @@ body {
 
 .logout-btn:hover {
     background-color: #4070c0;
+}
+
+.delete-account-btn {
+    width: 100%;
+    background-color: #dc2626;
+    color: white;
+    border: none;
+    padding: 8px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    margin-top: 10px;
+}
+
+.delete-account-btn:hover {
+    background-color: #b91c1c;
+}
+
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(26, 26, 61, 0.9);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.modal-overlay.visible {
+    opacity: 1;
+    visibility: visible;
+}
+
+.modal {
+    background-color: #1a1a3d;
+    padding: 2rem;
+    border-radius: 10px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    max-width: 400px;
+    width: 90%;
+    border: 1px solid rgba(86, 129, 208, 0.2);
+}
+
+.modal-content {
+    text-align: center;
+}
+
+.modal-description {
+    color: #888;
+    margin-bottom: 1.5rem;
+    line-height: 1.5;
+}
+
+.modal-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    margin-top: 1.5rem;
+}
+
+.modal-btn {
+    padding: 10px 20px;
+    border-radius: 5px;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    font-size: 0.95rem;
+}
+
+.modal-delete {
+    background-color: #dc2626;
+    color: white;
+}
+
+.modal-delete:hover {
+    background-color: #b91c1c;
+}
+
+.modal-cancel {
+    background-color: #1a1a3d;
+    color: white;
+    border: 1px solid rgba(86, 129, 208, 0.3);
+}
+
+.modal-cancel:hover {
+    background-color: #22224d;
 }
 
 .upload-section {
