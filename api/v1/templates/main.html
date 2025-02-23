@@ -11,84 +11,112 @@
     />
   </head>
   <body>
-    <div class="sidebar">
-      <div class="sidebar-toggle">
-        <i data-lucide="chevron-right" stroke="#5681d0"></i>
+    <div class="app-container">
+      <div class="sidebar">
+        <div class="sidebar-toggle">
+          <i data-lucide="chevron-right" stroke="#5681d0"></i>
+        </div>
+        <div class="sidebar-content">
+          <!--Home link -->
+          <a href="/" class="home-link">
+            <i data-lucide="home"></i>
+            <span>Home</span>
+          </a>
+          <div class="user-icon">
+            <i data-lucide="user"></i>
+          </div>
+          <div class="user-profile-container">
+            <div class="user-profile-details">
+              <div class="user-email-container">
+                <div class="user-email">{{ username }}</div>
+                <i
+                  class="down-arrow"
+                  data-lucide="chevron-down"
+                  stroke="#5681d0"
+                ></i>
+              </div>
+              <div class="logout-section">
+                <form
+                  action="{{ url_for('api.logout.logout') }}"
+                  method="post"
+                  class="logout-form"
+                >
+                  <button type="submit" class="logout-btn">Logout</button>
+                </form>
+                <button class="delete-account-btn">Delete Account</button>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
-      <div class="sidebar-content">
-        <!--Home link -->
-        <a href="/" class="home-link">
-          <i data-lucide="home"></i>
-          <span>Home</span>
-        </a>
-        <div class="user-profile-container">
-          <div class="user-profile-details">
-            <div class="user-email-container">
-              <div class="user-email">{{ username }}</div>
-              <i
-                class="down-arrow"
-                data-lucide="chevron-down"
-                stroke="#5681d0"
-              ></i>
+
+      <div class="dashboard-container">
+        <div class="header">
+          <h1 class="welcome-message">Files on Cloud</h1>
+          <div class="header-divider"></div>
+        </div>
+
+        <div class="upload-section">
+          <div class="upload-helper-text">
+            Upload files to the shared cloud storage. Supported file types
+            include documents, images, spreadsheets, and more. Maximum file size
+            is 2.5GB.
+          </div>
+          <input type="file" id="file-upload" class="upload-input" />
+          <label for="file-upload" class="upload-label">
+            <i data-lucide="upload" stroke="#ffffff"></i>
+            Choose File
+          </label>
+          <div class="file-info" style="display: none">
+            Selected file: <span id="selected-filename"></span>
+            <button id="upload-button" class="upload-button">
+              Start Upload
+            </button>
+          </div>
+          <div class="progress-container" style="display: none">
+            <div class="progress-bar" id="upload-progress"></div>
+          </div>
+          <div id="upload-status" class="upload-status"></div>
+        </div>
+
+        <div class="recent-files">
+          <div class="recent-files-header">
+            <h2 class="recent-files-title">Recent Files</h2>
+            <div class="search-container">
+              <input
+                type="text"
+                class="search-input"
+                placeholder="Search files..."
+                aria-label="Search files"
+              />
             </div>
-            <div class="logout-section">
-              <form
-                action="{{ url_for('api.logout.logout') }}"
-                method="post"
-                class="logout-form"
-              >
-                <button type="submit" class="logout-btn">Logout</button>
-              </form>
-            </div>
+          </div>
+          <div class="files-grid" id="files-container">
+            <!-- Files will be dynamically populated here -->
           </div>
         </div>
       </div>
     </div>
 
-    <div class="dashboard-container">
-      <div class="header">
-        <h1 class="welcome-message">Files on Cloud</h1>
-        <div class="header-divider"></div>
-      </div>
-
-      <div class="upload-section">
-        <div class="upload-helper-text">
-          Upload files to the shared cloud storage. Supported file types include
-          documents, images, spreadsheets, and more. Maximum file size is 2.5GB.
-        </div>
-        <input type="file" id="file-upload" class="upload-input" />
-        <label for="file-upload" class="upload-label">
-          <i data-lucide="upload" stroke="#ffffff"></i>
-          Choose File
-        </label>
-        <div class="file-info" style="display: none">
-          Selected file: <span id="selected-filename"></span>
-          <button id="upload-button" class="upload-button">Start Upload</button>
-        </div>
-        <div class="progress-container" style="display: none">
-          <div class="progress-bar" id="upload-progress"></div>
-        </div>
-        <div id="upload-status" class="upload-status"></div>
-      </div>
-
-      <div class="recent-files">
-        <div class="recent-files-header">
-          <h2 class="recent-files-title">Recent Files</h2>
-          <div class="search-container">
-            <input
-              type="text"
-              class="search-input"
-              placeholder="Search files..."
-              aria-label="Search files"
-            />
+    <div class="modal-overlay">
+      <div class="modal">
+        <div class="modal-content">
+          <h3 class="modal-title">Delete Account</h3>
+          <p class="modal-description">
+            This action cannot be undone. This will permanently delete your
+            account and remove your data from our servers.
+          </p>
+          <div class="modal-buttons">
+            <button class="modal-btn modal-cancel">Cancel</button>
+            <button class="modal-btn modal-delete">Delete Account</button>
           </div>
-        </div>
-        <div class="files-grid" id="files-container">
-          <!-- Files will be dynamically populated here -->
         </div>
       </div>
     </div>
 
-    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    <script
+      type="module"
+      src="{{ url_for('static', filename='js/main.js') }}"
+    ></script>
   </body>
 </html>
