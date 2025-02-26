@@ -8,9 +8,10 @@ from v1.cognito import (register_user,
                         confirm_user,
                         resend_verification_code,
                         login_user,
-                        email_exists)
+                        email_exists,
+                        delete_user)
 from v1.config import Config
-from unittest.mock import patch
+from unittest.mock import MagicMock, patch
 
 
 @pytest.fixture
@@ -284,3 +285,145 @@ def test_email_exists_error(mock_list_users, cognito_client):
     )
 
     assert email_exists("testuser@example.com") is False
+
+
+@mock_aws
+def test_delete_user_success(cognito_client):
+    """Test successful user deletion from Cognito and DynamoDB"""
+    dynamodb = boto3.resource("dynamodb", region_name=Config.AWS_REGION)
+    table = dynamodb.create_table(
+        TableName=Config.USERDATA_DYNAMODB_TABLE_NAME,
+        KeySchema=[{"AttributeName": "UserId", "KeyType": "HASH"}],
+        AttributeDefinitions=[
+            {"AttributeName": "UserId", "AttributeType": "S"}
+            ],
+        ProvisionedThroughput={"ReadCapacityUnits": 1, "WriteCapacityUnits": 1}
+    )
+    table.put_item(Item={"UserId": "testuser@example.com"})
+
+    access_token = "valid-access-token"
+
+    with patch("v1.cognito.cognito_client.delete_user", return_value={}):
+        with patch("v1.cognito.session", {"email": "testuser@example.com"}):
+            response = delete_user(access_token)
+
+    assert response["Success"] is True
+
+
+@mock_aws
+@patch("v1.cognito.cognito_client.delete_user")
+def test_delete_user_invalid_access_token(mock_delete_user, cognito_client):
+    """Test deletion with  invalid access token"""
+    mock_delete_user.side_effect = ClientError(
+        {
+            "Error": {
+                "Code": "InvalidParameterException",
+                "Message": "Invalid access token",
+            }
+        },
+        "delete_user",
+    )
+
+    response = delete_user("invalid-access-token")
+    assert response["Success"] is False
+    assert "message" in response
+
+
+@mock_aws
+@patch("v1.cognito.cognito_client.delete_user")
+def test_delete_user_cognito_internal_error(mock_delete_user, cognito_client):
+    """Test deletion when Cognito returns an internal error"""
+    mock_delete_user.side_effect = ClientError(
+        {
+            "Error": {
+                "Code": "InternalError",
+                "Message": "Internal server error"
+            }
+        },
+        "delete_user",
+    )
+
+    response = delete_user("valid-access-token")
+    assert response["Success"] is False
+    assert "message" in response
+
+
+@mock_aws
+@patch("v1.cognito.cognito_client.delete_user")
+@patch("v1.cognito.boto3.resource")
+def test_delete_user_dynamodb_not_found(
+    mock_boto3_resource,
+    mock_delete_user,
+    cognito_client
+):
+    """Test deletion when the user is not found in DynamoDB."""
+    mock_delete_user.return_value = {}
+
+    mock_dynamodb = MagicMock()
+    mock_table = MagicMock()
+    mock_table.delete_item.return_value = {}
+    mock_dynamodb.Table.return_value = mock_table
+    mock_boto3_resource.return_value = mock_dynamodb
+
+    with patch("v1.cognito.session", {"email": "nonexistent@example.com"}):
+        response = delete_user("valid-access-token")
+
+    assert response["Success"] is False
+    assert response["message"] == "User not found in database"
+
+
+@mock_aws
+@patch("v1.cognito.cognito_client.delete_user")
+def test_delete_user_too_many_requests(mock_delete_user, cognito_client):
+    """Test deletion when too many requests are made to Cognito"""
+    mock_delete_user.side_effect = ClientError(
+        {
+            "Error": {
+                "Code": "TooManyRequestsException",
+                "Message": "Rate limit exceeded"
+            }
+        },
+        "delete_user",
+    )
+
+    response = delete_user("valid-access-token")
+    assert response["Success"] is False
+    assert "message" in response
+
+
+@mock_aws
+@patch("v1.cognito.cognito_client.delete_user")
+def test_delete_user_unauthorized(mock_delete_user, cognito_client):
+    """Test deletion when the access token is unauthorized"""
+    mock_delete_user.side_effect = ClientError(
+        {
+            "Error": {
+                "Code": "NotAuthorizedException",
+                "Message": "Unauthorized"
+            }
+        },
+        "delete_user",
+    )
+
+    response = delete_user("unauthorized-access-token")
+    assert response["Success"] is False
+    assert "message" in response
+
+
+@mock_aws
+@patch("v1.cognito.cognito_client.delete_user")
+def test_delete_user_not_found(mock_delete_user, cognito_client):
+    """Test deletion when the user is not found in Cognito"""
+    mock_delete_user.side_effect = ClientError(
+        {
+            "Error": {
+                "Code": "UserNotFoundException",
+                "Message": "User not found"
+            }
+        },
+        "delete_user",
+    )
+
+    response = delete_user("valid-access-token")
+    assert response["Success"] is False
+    assert "message" in response
