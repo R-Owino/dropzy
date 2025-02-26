@@ -42,7 +42,7 @@ def check_file_exists():
     try:
         # initialize DynamoDB resource
         dynamodb = boto3.resource("dynamodb")
-        TABLE_NAME = Config.DYNAMODB_TABLE_NAME
+        TABLE_NAME = Config.DOCUMENTS_DYNAMODB_TABLE_NAME
 
         secure_name = secure_filename(file_name)
 
