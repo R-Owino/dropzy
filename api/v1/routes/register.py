@@ -45,7 +45,9 @@ def register():
 
         try:
             if email_exists(email):
-                return jsonify({"message": "User with email already exists."}), 409
+                return jsonify({
+                    "message": "User with email already exists."
+                }), 409
 
             result = register_user(email, username, password)
             if result["Success"]:
@@ -53,10 +55,14 @@ def register():
                 return redirect(url_for("api.confirm.confirm"))
             else:
                 return jsonify({
-                    "message": "Registration failed. Please check your inputs."
+                    "message": (
+                        "Registration failed. Please check your inputs."
+                    )
                 }), 400
         except Exception as e:
             logger.error(f"Registration error: {e}")
-            return jsonify({"message": "An error occured. Please try again."}), 500
+            return jsonify({
+                "message": "An error occured. Please try again."
+            }), 500
 
     return render_template("register.html")
