@@ -8,13 +8,36 @@ services:
     volumes:
       - ./:/app
       - ~/.aws:/root/.aws:ro
+      - ./scripts:/scripts
     working_dir: /app
     networks:
-      - backend
+      - file-share
     entrypoint: [ "/bin/bash", "-c" ]
     command: >
-      "terraform -chdir=infra apply --auto-approve &&
-      ./generate-env.sh"
+      "terraform -chdir=infra apply -auto-approve &&
+      /scripts/generate-env.sh &&
+      touch /app/terraform-complete"
+    healthcheck:
+      test: ["CMD", "sh", "-c", "if [ -f /app/terraform-complete ]; then exit 0; else exit 1; fi"]
+      interval: 2s
+      timeout: 1s
+      retries: 10
+  
+  redis:
+    image: redis
+    container_name: some-redis
+    env_file:
+      - api/v1/.env
+    volumes:
+      - ./scripts:/scripts
+    entrypoint: ["sh", "/scripts/redis-entrypoint.sh"]
+    networks:
+      - file-share
+    healthcheck:
+      test: ["CMD", "sh", "-c", "echo 'auth $${REDIS_PASSWORD}\nping' | redis-cli"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
 
   api:
     build:
@@ -31,12 +54,13 @@ services:
       - ./api/v1/static:/app/v1/static
       - ./api/v1/templates:/app/v1/templates
     depends_on:
+      redis:
+        condition: service_healthy
       terraform:
-        condition: service_completed_successfully
-        required: true
+        condition: service_healthy
     networks:
-      - backend
+      - file-share
 
 networks:
-  backend:
+  file-share:
     driver: bridge
