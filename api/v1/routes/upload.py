@@ -84,7 +84,7 @@ def initialize_multipart_upload():
 
     if not request.is_json:
         return jsonify({
-            "error": "Content-Type must be applicaion/json"
+            "error": "Content-Type must be application/json"
         }), 415
 
     # validate filename
