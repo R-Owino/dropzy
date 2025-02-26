@@ -49,15 +49,18 @@ document.addEventListener('DOMContentLoaded', function () {
                 body: formData
             });
 
-            const data = await response.json()
-
             if (response.redirected) {
                 window.location.href = response.url;
-            } else if (response.status === 409) {
-                showToast(data.message);
             } else {
-                showToast(data.message);
+                const data = await response.json();
+            
+                if (response.status === 409) {
+                    showToast(data.message);
+                } else {
+                    showToast(data.message);
+                }
             }
+
         } catch (error) {
             console.error('Registration error:', error);
             showToast('An error occurred. Please try again.');
