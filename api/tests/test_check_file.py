@@ -3,9 +3,17 @@ import pytest
 import json
 from moto import mock_aws
 import boto3
+import os
 from v1.config import Config
 from werkzeug.utils import secure_filename
 from botocore.exceptions import NoCredentialsError
+
+# environment variables for testing
+os.environ['AWS_ACCESS_KEY_ID'] = 'testing'
+os.environ['AWS_SECRET_ACCESS_KEY'] = 'testing'
+os.environ['AWS_SECURITY_TOKEN'] = 'testing'
+os.environ['AWS_SESSION_TOKEN'] = 'testing'
+os.environ['AWS_DEFAULT_REGION'] = 'us-west-2'
 
 
 @pytest.fixture
@@ -19,19 +27,19 @@ def client():
 
 @mock_aws
 def setup_dynamodb():
-    """Set up the mock DynamoDB table before running tests"""
+    """Set up DynamoDB table for testing"""
+    if Config.DOCUMENTS_DYNAMODB_TABLE_NAME is None:
+        Config.DOCUMENTS_DYNAMODB_TABLE_NAME = "test-files-table"
+
     dynamodb = boto3.resource("dynamodb", region_name="us-west-2")
-    table_name = Config.DOCUMENTS_DYNAMODB_TABLE_NAME
     table = dynamodb.create_table(
-        TableName=table_name,
+        TableName=Config.DOCUMENTS_DYNAMODB_TABLE_NAME,
         KeySchema=[{"AttributeName": "file_name", "KeyType": "HASH"}],
         AttributeDefinitions=[
             {"AttributeName": "file_name", "AttributeType": "S"}
         ],
-        ProvisionedThroughput={"ReadCapacityUnits": 5,
-                               "WriteCapacityUnits": 5},
+        ProvisionedThroughput={"ReadCapacityUnits": 5, "WriteCapacityUnits": 5}
     )
-    table.wait_until_exists()
     return table
 
 
