@@ -59,6 +59,5 @@ jobs:
             /bin/bash -c "cd /app && pytest tests/"
 
       - name: Push API Image
-        if: github.ref == 'refs/heads/main'
         run: |
           docker push ${{ secrets.DOCKERHUB_USERNAME }}/}/file-sharing-api:latest
