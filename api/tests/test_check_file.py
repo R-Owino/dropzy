@@ -21,7 +21,7 @@ def client():
 def setup_dynamodb():
     """Set up the mock DynamoDB table before running tests"""
     dynamodb = boto3.resource("dynamodb", region_name="us-west-2")
-    table_name = Config.DYNAMODB_TABLE_NAME
+    table_name = Config.DOCUMENTS_DYNAMODB_TABLE_NAME
     table = dynamodb.create_table(
         TableName=table_name,
         KeySchema=[{"AttributeName": "file_name", "KeyType": "HASH"}],
