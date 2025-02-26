@@ -9,7 +9,14 @@ const SELECTORS = {
     MODAL_OVERLAY: '.modal-overlay',
     DELETE_ACCOUNT_BTN: '.delete-account-btn',
     MODAL_CANCEL_BTN: '.modal-cancel',
-    MODAL_DELETE_BTN: '.modal-delete'
+    MODAL_DELETE_BTN: '.modal-delete',
+    LOGOUT_BTN: '.logout-btn'
+};
+
+const API_ENDPOINTS = {
+    register: '/api/v1/register',
+    delete_account: '/api/v1/delete-account',
+    logout: '/api/v1/logout'
 };
 
 class SidebarManager {
@@ -23,29 +30,27 @@ class SidebarManager {
         this.deleteAccountBtn = document.querySelector(SELECTORS.DELETE_ACCOUNT_BTN);
         this.modalCancelBtn = document.querySelector(SELECTORS.MODAL_CANCEL_BTN);
         this.modalDeleteBtn = document.querySelector(SELECTORS.MODAL_DELETE_BTN);
+        this.logoutBtn = document.querySelector(SELECTORS.LOGOUT_BTN);
 
         this.initializeEventListeners();
         this.initializeDeleteAccount();
+        this.initializeLogout();
     }
 
     initializeEventListeners() {
-        // Sidebar toggle functionality
         this.toggle.addEventListener('click', () => {
             this.toggleSidebar();
         });
 
-        // Email dropdown functionality
         this.emailContainer.addEventListener('click', () => {
             this.handleEmailContainerClick();
         });
 
-        // User icon click to expand sidebar
         const userIcon = document.querySelector('.user-icon');
         userIcon.addEventListener('click', () => {
             this.toggleSidebar();
         });
 
-        // Close dropdown when clicking outside
         document.addEventListener('click', (event) => {
             this.handleOutsideClick(event);
         });
@@ -53,6 +58,10 @@ class SidebarManager {
 
     toggleSidebar() {
         this.sidebar.classList.toggle('expanded');
+        if (!this.sidebar.classList.contains('expanded')) {
+            this.logoutSection.classList.remove('expanded');
+            this.dropdownArrow.classList.remove('active');
+        }
     }
 
     handleEmailContainerClick() {
@@ -83,20 +92,33 @@ class SidebarManager {
 
         this.modalDeleteBtn.addEventListener('click', async () => {
             try {
-                const response = await fetch('/api/v1/delete-account', {
+                this.showToast('Deleting account...');
+
+                const response = await fetch(API_ENDPOINTS.delete_account, {
                     method: 'POST',
                     headers: {
-                        'Content-Type': 'application/json'
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
                     }
                 });
 
+                const data = await response.json();
+
                 if (response.ok) {
-                    window.location.href = '/signup';
+                    this.showToast(data.message);
+
+                    setTimeout(() => {
+                        window.location.href = API_ENDPOINTS.register;
+                    }, 1500);
+
                 } else {
-                    console.error('Failed to delete account');
+                    this.showToast(data.message || 'Failed to delete account');
+                    this.modalOverlay.classList.remove('visible');
                 }
             } catch (error) {
                 console.error('Error:', error);
+                this.showToast('An unexpected error occurred');
+                this.modalOverlay.classList.remove('visible');
             }
         });
 
@@ -107,9 +129,62 @@ class SidebarManager {
         });
     }
 
+    initializeLogout() {
+        this.logoutBtn.addEventListener('click', async (event) => {
+            event.preventDefault();
+
+            this.showToast('Logging out...');
+
+            try {
+                const response = await fetch(API_ENDPOINTS.logout, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    }
+                });
+
+                if (response.ok) {
+                    this.showToast('Logged out successfully');
+                    setTimeout(() => {
+                        window.location.href = response.url;
+                    }, 1500);
+                } else {
+                    this.showToast('Failed to log out');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                this.showToast('An unexpected error occurred');
+            }
+        });
+    }
+
+    showToast(message) {
+        let toastContainer = document.getElementById('toast-container');
+        if (!toastContainer) {
+            toastContainer = document.createElement('div');
+            toastContainer.id = 'toast-container';
+            document.body.appendChild(toastContainer);
+        }
+
+        const toast = document.createElement('div');
+        toast.className = 'toast-notification';
+        toast.textContent = message;
+        toastContainer.appendChild(toast);
+
+        setTimeout(() => {
+            toast.classList.add('show');
+        }, 10);
+
+        setTimeout(() => {
+            toast.classList.remove('show');
+            setTimeout(() => {
+                toast.remove();
+            }, 400);
+        }, 5000);
+    }
 }
 
-// Export function to initialize sidebar
 export function initializeSidebar() {
     return new SidebarManager();
 }
