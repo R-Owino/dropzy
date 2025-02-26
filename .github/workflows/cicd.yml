@@ -52,6 +52,8 @@ jobs:
         run: |
           docker run --rm \
             -v $(pwd)/api/v1/.env:/app/v1/.env \
+            -e AWS_ACCESS_KEY_ID=testing \
+            -e AWS_SECRET_ACCESS_KEY=testing \
             -e AWS_DEFAULT_REGION=us-west-2 \
             ${{ secrets.DOCKERHUB_USERNAME }}/file-sharing-api:latest \
             /bin/bash -c "cd /app && pytest tests/"
