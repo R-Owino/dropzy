@@ -1,0 +1,57 @@
+name: Linting Checks
+
+'on':
+  push:
+    branches:
+      - remmy
+  pull_request:
+    branches:
+      - remmy
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.x'
+
+      - name: Install pycodestyle (PEP 8)
+        run: pip install pycodestyle
+
+      - name: Lint Python files
+        run: |
+          find . -name "*.py" | xargs pycodestyle
+
+      - name: Install shellcheck
+        run: sudo apt-get install shellcheck
+
+      - name: Lint Shell files
+        run: |
+          find . -name "*.sh" | xargs shellcheck
+
+      - name: Set up Node.js (for eslint)
+        uses: actions/setup-node@v3
+        with:
+          node-version: '16'
+
+      - name: Install eslint
+        run: npm install -g eslint
+
+      - name: Lint JavaScript files
+        run: |
+          find . -name "*.js" | xargs eslint
+
+      - name: Check for trailing newline in all files
+        run: |
+          for file in $(find . -type f -not -path "./.git/*"); do
+            if [ -s "$file" ] && [ "$(tail -c 1 "$file" | wc -l)" -eq 0 ]; then
+              echo "Error: File '$file' does not have a trailing newline."
+              exit 1
+            fi
+          done
