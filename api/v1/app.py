@@ -4,13 +4,15 @@ from flask_session import Session
 from flask_cors import CORS
 from datetime import timedelta
 import logging
+import redis
 
 from v1.routes.landing import landing_bp
-from v1.routes.login import login_bp
 from v1.routes.register import register_bp
 from v1.routes.confirm import confirm_bp
 from v1.routes.resend_code import resend_bp
+from v1.routes.login import login_bp
 from v1.routes.main import main_bp
+from v1.routes.delete_account import delete_account_bp
 from v1.routes import upload_bp
 from v1.routes.download import download_bp
 from v1.routes import file_metadata_bp
@@ -29,7 +31,11 @@ app = Flask(__name__)
 app.secret_key = Config.SECRET_KEY
 app.config["SESSION_COOKIE_SECURE"] = False
 app.config["SESSION_PERMANENT"] = False
-app.config["SESSION_TYPE"] = "filesystem"
+app.config["SESSION_TYPE"] = "redis"
+app.config["SESSION_USE_SIGNER"] = True
+app.config["SESSION_REDIS"] = redis.from_url(
+    f"redis://:{Config.REDIS_PASSWORD}@{Config.REDIS_HOST}:{Config.REDIS_PORT}"
+)
 app.config["PERMANENT_SESSION_LIFETIME"] = timedelta(minutes=30)
 
 # remove prefix from landing page url
@@ -37,16 +43,17 @@ app.register_blueprint(landing_bp)
 
 # base API blueprint
 api_bp = Blueprint('api', __name__, url_prefix='/api/v1')
-CORS(api_bp, 
+CORS(api_bp,
      origins="*",
      allow_headers=["Content-Type", "Authorization"])
 
 Session(app)
 
-api_bp.register_blueprint(login_bp)
 api_bp.register_blueprint(register_bp)
 api_bp.register_blueprint(confirm_bp)
 api_bp.register_blueprint(resend_bp)
+api_bp.register_blueprint(login_bp)
+api_bp.register_blueprint(delete_account_bp)
 api_bp.register_blueprint(main_bp)
 api_bp.register_blueprint(upload_bp)
 api_bp.register_blueprint(download_bp)
@@ -74,4 +81,4 @@ def log_session_after_request(response):
 
 
 if __name__ == "__main__":
-    app.run(debug=True, host="0.0.0.0", port=5000)
+    app.run(debug=True, host="0.0.0.0", port=8080)
