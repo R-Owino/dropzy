@@ -61,8 +61,6 @@ def test_confirm_post_success(mock_confirm_user, client):
     response = client.post("/api/v1/confirm",
                            data={"code": "123456"},
                            headers={"Accept": "application/json"})
-    print("Mock called with:", mock_confirm_user.call_args)
-    print("Response JSON:", response.get_json())
 
     assert response.status_code == 200
     json_data = response.get_json()
