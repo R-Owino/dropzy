@@ -1,9 +1,10 @@
 import boto3
 import logging
 import re
+from flask import session
 from botocore.exceptions import ClientError
 from v1.config import Config
-from typing import Dict
+from typing import Dict, Union
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
@@ -108,7 +109,7 @@ def resend_verification_code(email: str) -> Dict[str, bool | str]:
 def login_user(
     email: str,
     password: str
-) -> Dict[str, bool | str | Dict[str, str]]:
+) -> Dict[str, Union[bool, str, Dict[str, str]]]:
     """
     Authenticates a user and retrieves authentication tokens from AWS Cognito
 
@@ -154,3 +155,49 @@ def email_exists(email: str) -> bool:
     except ClientError as e:
         logger.error(f"Error checking email existence: {e}")
         return False
+
+
+def delete_user(access_token: str) -> Dict[str, bool | str]:
+    """
+    Deletes the currently signed-in user from Cognito and DynamoDB
+    using access token
+
+    Args:
+        access_token (str): the access token of the user to be deleted
+    
+    Returns:
+        dict: dictionary containing:
+            - "Success" (bool): True if user was successfully deleted
+            - "message" (str, optional): error message if the deletion fails
+    """
+    try:
+        # delete from cognito userpool
+        cognito_client.delete_user(
+            AccessToken=access_token
+        )
+
+        # delete from DynamoDB
+        email = session.get("email")
+        dynamodb = boto3.resource("dynamodb")
+        table = dynamodb.Table(Config.USERDATA_DYNAMODB_TABLE_NAME)
+
+        response = table.delete_item(
+            Key={"UserId": email},
+            ReturnValues="ALL_OLD"
+        )
+
+        if "Attributes" not in response:
+            return {
+                "Success": False,
+                "message": "User not found in database"
+            }
+
+        session.clear()
+        return {"Success": True}
+    
+    except ClientError as e:
+        logger.error(f"Failed to delete user: {e}")
+        return {
+            "Success": False,
+            "message": e.response["Error"]["Message"]
+        }
