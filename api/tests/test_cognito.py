@@ -290,6 +290,9 @@ def test_email_exists_error(mock_list_users, cognito_client):
 @mock_aws
 def test_delete_user_success(cognito_client):
     """Test successful user deletion from Cognito and DynamoDB"""
+    if Config.USERDATA_DYNAMODB_TABLE_NAME is None:
+        Config.USERDATA_DYNAMODB_TABLE_NAME = "test-users-table"
+
     dynamodb = boto3.resource("dynamodb", region_name=Config.AWS_REGION)
     table = dynamodb.create_table(
         TableName=Config.USERDATA_DYNAMODB_TABLE_NAME,
