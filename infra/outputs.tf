@@ -35,7 +35,11 @@ output "s3_bucket_name" {
   value       = module.s3.bucket_name
 }
 
-output "dynamodb_table_name" {
+output "documents_dynamodb_table_name" {
   description = "Name of DynamoDB table holding the files metadata"
   value       = module.dynamodb.documents_metadata_table_name
+}
+output "userdata_dynamodb_table_name" {
+  description = "Name of DynamoDB table holding user data"
+  value       = module.dynamodb.userdata_table_name
 }
