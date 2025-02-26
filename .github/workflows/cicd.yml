@@ -31,8 +31,7 @@ jobs:
         run: |
           cd infra
           terraform init
-          terraform plan
-          terraform apply --auto-approve
+          terraform apply -auto-approve
           cd ..
           ./generate-env.sh
 
