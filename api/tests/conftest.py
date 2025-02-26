@@ -18,7 +18,6 @@ def mock_redis():
 def client():
     from v1.app import app
 
-    # Configure app for testing
     app.config.update({
         "TESTING": True,
         "SESSION_TYPE": "filesystem"
