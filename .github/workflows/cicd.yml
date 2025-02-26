@@ -33,6 +33,7 @@ jobs:
           terraform init
           terraform apply -auto-approve
           cd ..
+          cd scripts
           ./generate-env.sh
 
       - name: Set up Docker Buildx
