@@ -5,6 +5,8 @@ from flask_cors import CORS
 from datetime import timedelta
 import logging
 import redis
+import os
+import sys
 
 from v1.routes.landing import landing_bp
 from v1.routes.register import register_bp
@@ -27,16 +29,25 @@ import v1.routes.search_file
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
+# check if test environment is the current one
+is_test = 'pytest' in sys.modules
+
+
 app = Flask(__name__)
 app.secret_key = Config.SECRET_KEY
 app.config["SESSION_COOKIE_SECURE"] = False
 app.config["SESSION_PERMANENT"] = False
-app.config["SESSION_TYPE"] = "redis"
-app.config["SESSION_USE_SIGNER"] = True
-app.config["SESSION_REDIS"] = redis.from_url(
-    f"redis://:{Config.REDIS_PASSWORD}@{Config.REDIS_HOST}:{Config.REDIS_PORT}"
-)
-app.config["PERMANENT_SESSION_LIFETIME"] = timedelta(minutes=30)
+
+if is_test:
+    app.config["SESSION_TYPE"] = "filesystem"
+else:
+    app.config["SESSION_TYPE"] = "redis"
+    app.config["SESSION_USE_SIGNER"] = True
+    app.config["SESSION_REDIS"] = redis.from_url(
+        f"redis://:{Config.REDIS_PASSWORD}@"
+        f"{Config.REDIS_HOST}:{Config.REDIS_PORT}"
+    )
+    app.config["PERMANENT_SESSION_LIFETIME"] = timedelta(minutes=30)
 
 # remove prefix from landing page url
 app.register_blueprint(landing_bp)
