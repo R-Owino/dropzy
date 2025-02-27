@@ -29,12 +29,9 @@ jobs:
 
       - name: Terraform init and Apply
         run: |
-          cd infra
-          terraform init
-          terraform apply -auto-approve
-          cd ..
-          cd scripts
-          ./generate-env.sh
+          terraform -chdir=infra init
+          terraform -chdir=infra apply -auto-approve
+          ./scripts/generate-env.sh
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
