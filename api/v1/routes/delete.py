@@ -39,7 +39,7 @@ def delete_file():
         return jsonify({
             "error": "Missing file_key parameter"
         }), 400
-    
+
     if ".." in file_key or file_key.startswith("/"):
         return jsonify({
             "error": "Invalid file key"
