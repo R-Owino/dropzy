@@ -164,7 +164,7 @@ def delete_user(access_token: str) -> Dict[str, bool | str]:
 
     Args:
         access_token (str): the access token of the user to be deleted
-    
+
     Returns:
         dict: dictionary containing:
             - "Success" (bool): True if user was successfully deleted
@@ -194,7 +194,7 @@ def delete_user(access_token: str) -> Dict[str, bool | str]:
 
         session.clear()
         return {"Success": True}
-    
+
     except ClientError as e:
         logger.error(f"Failed to delete user: {e}")
         return {
