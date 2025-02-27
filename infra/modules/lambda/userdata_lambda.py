@@ -10,6 +10,7 @@ from botocore.exceptions import ClientError
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
+
 def lambda_handler(event, context):
     """
     Lambda function to handle post-confirmation user signup
