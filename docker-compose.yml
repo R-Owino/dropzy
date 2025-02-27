@@ -24,7 +24,7 @@ services:
       retries: 10
   
   redis:
-    image: redis
+    image: "redis:alpine"
     container_name: some-redis
     env_file:
       - api/v1/.env
