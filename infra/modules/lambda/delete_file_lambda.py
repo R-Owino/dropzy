@@ -15,6 +15,7 @@ TABLE_NAME = os.environ["DYNAMODB_TABLE_NAME"]
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
+
 def lambda_handler(event, context):
     try:
         # get the file key from sent event
@@ -28,7 +29,7 @@ def lambda_handler(event, context):
                     'error': 'Missing file_key'
                 })
             }
-        
+
         # delete form s3
         try:
             s3.delete_object(Bucket=BUCKET_NAME, Key=file_key)
@@ -40,7 +41,7 @@ def lambda_handler(event, context):
                     'error': 'Failed to delete from S3'
                 })
             }
-        
+
         # delete metadata from DynamoDB
         table = dynamodb.Table(TABLE_NAME)
         try:
@@ -61,7 +62,7 @@ def lambda_handler(event, context):
                     'error': 'Failed to delete from DynamoDB'
                 })
             }
-        
+
         return {
             'statusCode': 200,
             'body': json.dumps({
