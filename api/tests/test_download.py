@@ -70,7 +70,9 @@ def test_download_file_not_found(client):
         CreateBucketConfiguration={"LocationConstraint": "us-west-2"}
     )
 
-    response = client.get("/api/v1/download?file_key=documents/missingfile.txt")
+    response = client.get(
+        "/api/v1/download?file_key=documents/missingfile.txt"
+    )
     assert response.status_code == 404
     assert response.get_json()["error"] == "File not found"
 
