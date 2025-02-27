@@ -1,11 +1,12 @@
 <!-- markdownlint-disable MD033 -->
 <h1 align="center">Dropzy - Elegant Simplicity in File Sharing</h1>
 <!-- markdownlint-enable MD033 -->
-[![forthebadge](https://forthebadge.com/images/badges/made-with-python.svg)](http://forthebadge.com)
-[![forthebadge](http://forthebadge.com/images/badges/built-with-love.svg)](http://forthebadge.com)
+[![forthebadge](https://forthebadge.com/images/badges/made-with-reason.svg)](https://forthebadge.com)
+[![forthebadge](https://forthebadge.com/images/badges/built-with-love.svg)](https://forthebadge.com)
 [![forthebadge](https://forthebadge.com/images/badges/powered-by-black-magic.svg)](https://forthebadge.com)
 
 [![CI](https://github.com/R-Owino/file-sharing/actions/workflows/cicd.yml/badge.svg)](https://github.com/R-Owino/file-sharing/actions/workflows/cicd.yml)
+[![CI](https://github.com/R-Owino/file-sharing/actions/workflows/linting.yml/badge.svg)](https://github.com/R-Owino/file-sharing/actions/workflows/linting.yml)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=shields)](http://makeapullrequest.com)
 
 Dropzy is a simple web application that lets users share files from a common platform . Users can upload, download, view, search and delete files from the shared platform.
