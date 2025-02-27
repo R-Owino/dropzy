@@ -1,9 +1,16 @@
 <!-- markdownlint-disable MD033 -->
 <h1 align="center">Dropzy - Elegant Simplicity in File Sharing</h1>
 <!-- markdownlint-enable MD033 -->
-[![forthebadge](https://forthebadge.com/images/badges/made-with-reason.svg)](https://forthebadge.com)
+
+[![forthebadge](https://forthebadge.com/images/badges/made-with-python.svg)](https://forthebadge.com)
 [![forthebadge](https://forthebadge.com/images/badges/built-with-love.svg)](https://forthebadge.com)
 [![forthebadge](https://forthebadge.com/images/badges/powered-by-black-magic.svg)](https://forthebadge.com)
+
+[![Terraform](https://img.shields.io/badge/Terraform-7B42BC?style=for-the-badge&logo=terraform&logoColor=white)](https://www.terraform.io/)
+[![AWS](https://img.shields.io/badge/AWS-232F3E?style=for-the-badge&logo=amazon-aws&logoColor=white)](https://aws.amazon.com/)
+[![GitHub Actions](https://img.shields.io/badge/GitHub_Actions-2088FF?style=for-the-badge&logo=github-actions&logoColor=white)](https://github.com/features/actions)
+[![pytest](https://img.shields.io/badge/pytest-0A9EDC?style=for-the-badge&logo=pytest&logoColor=white)](https://docs.pytest.org/)
+[![Docker](https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white)](https://www.docker.com/)
 
 [![CI](https://github.com/R-Owino/file-sharing/actions/workflows/cicd.yml/badge.svg)](https://github.com/R-Owino/file-sharing/actions/workflows/cicd.yml)
 [![CI](https://github.com/R-Owino/file-sharing/actions/workflows/linting.yml/badge.svg)](https://github.com/R-Owino/file-sharing/actions/workflows/linting.yml)
