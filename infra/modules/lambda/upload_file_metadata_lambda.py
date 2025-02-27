@@ -1,4 +1,4 @@
-""" 
+"""
 stores a file's metadata in a DynamoDB table
 """
 
@@ -13,7 +13,8 @@ logger = logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
 dynamodb = boto3.resource("dynamodb")
-TABLE_NAME =  os.environ["DYNAMODB_TABLE_NAME"]
+TABLE_NAME = os.environ["DYNAMODB_TABLE_NAME"]
+
 
 def lambda_handler(event, context):
     logger.info(f"Lambda function version: {context.function_version}")
@@ -50,8 +51,13 @@ def lambda_handler(event, context):
                         ),
                         ExpressionAttributeValues={
                             ':new_key': file_key,
-                            ':new_url': f"https://{bucket_name}.s3.amazonaws.com/{file_key}",
-                            ':new_timestamp': datetime.now(timezone.utc).isoformat(),
+                            ':new_url': (
+                                f"https://{bucket_name}.s3.amazonaws.com/"
+                                f"{file_key}"
+                            ),
+                            ':new_timestamp': (
+                                datetime.now(timezone.utc).isoformat()
+                            ),
                             ':new_size': size_bytes
                         }
                     )
@@ -62,13 +68,20 @@ def lambda_handler(event, context):
                         'DocumentId': str(uuid.uuid4()),
                         'file_name': file_name,
                         'file_key': file_key,
-                        'object_url': f"https://{bucket_name}.s3.amazonaws.com/{file_key}",
-                        'upload_timestamp': datetime.now(timezone.utc).isoformat(),
+                        'object_url': (
+                            f"https://{bucket_name}.s3.amazonaws.com/"
+                            f"{file_key}"
+                        ),
+                        'upload_timestamp': (
+                            datetime.now(timezone.utc).isoformat()
+                        ),
                         'size_bytes': size_bytes
                     }
-                    
+
                     table.put_item(Item=file_metadata)
-                    logger.info(f"Metadata for {file_name} stored successfully")  
+                    logger.info(
+                        f"Metadata for {file_name} stored successfully"
+                    )
 
         return {
             'statusCode': 200,
