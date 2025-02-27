@@ -58,4 +58,4 @@ jobs:
 
       - name: Push API Image
         run: |
-          docker push ${{ secrets.DOCKERHUB_USERNAME }}/}/file-sharing-api:latest
+          docker push ${{ secrets.DOCKERHUB_USERNAME }}/file-sharing-api:latest
