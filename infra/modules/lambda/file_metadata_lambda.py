@@ -1,5 +1,5 @@
-""" 
-fetches a file metadata from the documents table 
+"""
+fetches a file metadata from the documents table
 scans the documents table to get a searched file
 """
 
@@ -14,10 +14,11 @@ logger.setLevel(logging.INFO)
 dynamodb = boto3.resource("dynamodb")
 TABLE_NAME = os.environ["DYNAMODB_TABLE_NAME"]
 
+
 def lambda_handler(event, context):
     try:
         logger.info(f"Received event: {json.dumps(event)}")
-        
+
         # extract query parameters
         query_params = event.get('queryStringParameters', {}) or {}
         search_term = query_params.get('search', '')
@@ -35,8 +36,10 @@ def lambda_handler(event, context):
             extracted_files.append({
                 "file_name": file.get("file_name", "unknown"),
                 "file_key": file.get("file_key", ""),
-                "upload_timestamp": file.get("upload_timestamp",
-                                             "1970-01-01T00:00:00.000000+00:00"),
+                "upload_timestamp": (
+                    file.get("upload_timestamp",
+                             "1970-01-01T00:00:00.000000+00:00")
+                ),
                 "object_url": file.get("object_url", ""),
                 "size_bytes": file.get("size_bytes", 0),
             })
@@ -72,7 +75,7 @@ def lambda_handler(event, context):
                 'files': sorted_files
             })
         }
-    
+
     except Exception as e:
         logger.error(f"Error: {str(e)}", exc_info=True)
         return {
